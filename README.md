@@ -1,59 +1,58 @@
-# person-log · 个人博客
+# Person Log · 个人博客
 
-个人博客网站，技术栈：**Next.js（App Router）+ MySQL 8 + Prisma + Tailwind CSS**。
-需求分析与决策记录见 [需求文档.md](./需求文档.md)。
+一个功能完整的个人博客系统：支持 Markdown 写作、评论互动、说说、友链、数据看板，图片自动优化，开箱即可本地运行，配套 Docker 部署方案。
 
-## 当前状态
+![Next.js](https://img.shields.io/badge/Next.js-16-black) ![MySQL](https://img.shields.io/badge/MySQL-8-4479A1) ![Prisma](https://img.shields.io/badge/Prisma-6-2D3748) ![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-4-06B6D4) ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6)
 
-- ✅ M1 已完成并冒烟验证通过（2026-09-28）：写 → 发 → 看闭环
-  - 前台：首页列表、文章详情（Markdown + 代码高亮）、归档、分类、标签、关于页
-  - 后台：登录、文章管理、编辑器（草稿/发布/置顶、自动建分类标签、本地草稿暂存）
-  - SEO：每页独立标题/描述、Open Graph、`/sitemap.xml`、`/robots.txt`
-- ✅ M2 已完成并冒烟验证通过（2026-09-28，21/21）：体验补全
-  - 暗色模式（跟随系统 + 手动切换，首屏无闪烁，代码高亮同步切换）
-  - 文章目录 TOC（宽屏侧栏 + 滚动高亮）、站内搜索（`/search`）、代码块复制按钮、图片懒加载
-  - 站点设置（站点名/副标题/SEO 描述/页脚/社交链接/评论配置，实时生效）
-  - 图片上传（粘贴/拖拽/按钮，存 `data/uploads/`，禁 svg 防 XSS）
-  - 内容导出（后台一键下载全部文章为 front-matter Markdown zip）
-- ✅ M3 已完成并冒烟验证通过（2026-09-28，26/26）：互动上线
-  - 评论（完全自建）：游客免注册评论、楼中楼回复、Cravatar 头像、先审后显
-  - 反垃圾四件套：蜜罐字段、最短提交耗时、同 IP 频率限制、黑名单关键词（后台可配）
-  - 后台评论管理：待审角标、通过/隐藏/恢复/删除、以博主身份回复（免审直发）
-  - 免审白名单邮箱（后台可配）、RSS 订阅 `/feed.xml`、浏览量统计、点赞（本地防重复）
-- ✅ 视觉升级 v2（2026-09-28，慵懒风照片版）：首页全宽照片 Hero（内置 Unsplash 免费图，后台可换）+ 玻璃拟态统计胶囊、全站暖色系（stone + orange）、浮层内容卡片、阅读进度条、归档时间线、圆形分页、毛玻璃页头、深色页脚、入场动画
-- ✅ M5 已完成并冒烟验证通过（2026-09-29，37/37）：长期演进
-  - 数据看板 `/admin`：总览卡片（文章/浏览/点赞/评论）、最近 14 天 PV 趋势图、热门文章 TOP10、最近评论
-  - 说说/时间线 `/moments`：后台发布器（支持配图上传）、前台时间线展示
-  - 友链 `/friends`：后台增删改 + 显示/隐藏，前台卡片墙
-  - 相关文章推荐（同标签）、文章页 JSON-LD 结构化数据（BlogPosting）
-- ✅ 定版体检（2026-09-29）：`npm audit` 0 漏洞（Prisma 锁定 6.12.0）、`npm run lint` 0 错误、搜索 LIKE 通配符转义、Docker standalone 按需构建（BUILD_STANDALONE=1）、`NEXT_PUBLIC_SITE_URL` 支持正式域名
-- ⬜ M4 部署上线（暂缓）：域名/备案、服务器部署、HTTPS、备份脚本
-- ⬜ 更远期（依赖外部服务或低优先）：评论邮件通知（需 SMTP）、AI 摘要（需 API）、留言板、相册、外接统计（Umami）
+| 前台 | 后台数据看板 |
+| --- | --- |
+| ![前台首页](docs/images/preview-home.png) | ![后台看板](docs/images/preview-dashboard.png) |
 
-## 快速开始（本地开发）
+## ✨ 功能特性
 
-前置：Node 18+，以及可连接的 MySQL 8（本机安装或 Docker 均可）。
+**前台**
+
+- 🏠 照片横幅首页 + 浮层卡片布局，图片全站自动优化（AVIF/WebP、响应式、懒加载）
+- 📝 Markdown 文章：GFM 语法、代码高亮、代码块复制、目录导航（TOC）、相关文章推荐
+- 🗂 归档（时间线）、分类、标签、站内搜索（标题/摘要/全文）
+- 💬 评论系统：游客免注册评论、楼中楼回复、Cravatar 头像、先审后显 + 反垃圾（蜜罐/频率限制/关键词/耗时校验）
+- 🌙 暗色模式（跟随系统 + 手动切换，无闪烁）
+- 📡 RSS 订阅、文章点赞、浏览量统计、JSON-LD 结构化数据（SEO）
+
+**后台**
+
+- 📊 数据看板：总览卡片、最近 14 天 PV 趋势、热门文章 TOP10、最近评论
+- ✍️ 文章管理：Markdown 编辑器（草稿/发布/置顶、粘贴与拖拽上传配图、本地草稿暂存）
+- 💬 评论管理：审核/隐藏/恢复/删除、以博主身份回复
+- ⚡ 说说管理、友链管理（增删改 + 显示隐藏）
+- ⚙️ 站点设置（站点名/SEO/页脚/横幅图/评论配置，保存即时生效）
+- 🖼 图片上传（本地磁盘图床，拒绝 SVG 防 XSS）
+- 📦 内容导出：一键打包全部文章为 front-matter Markdown zip
+
+## 🛠 技术栈
+
+Next.js 16（App Router）· React 19 · TypeScript · Tailwind CSS 4 · Prisma ORM · MySQL 8 · jose（JWT 会话）· react-markdown + rehype
+
+## 🚀 快速开始
+
+前置：Node 18+、MySQL 8（本机安装或 Docker 均可）。
 
 ```bash
+git clone https://github.com/xiaoqingxu271/person-log.git
+cd person-log
 cp .env.example .env    # 按需修改 DATABASE_URL / 管理员账号
 npm install
-npm run db:push         # 建表（schema.prisma 是唯一事实来源）
-npm run db:seed         # 管理员账号 + 示例文章（幂等，可重复执行）
-npm run dev             # 开发模式，访问 http://localhost:3000
+npm run db:push         # 建表（prisma/schema.prisma 是唯一事实来源）
+npm run db:seed         # 管理员账号 + 示例内容（幂等，可重复执行）
+node prisma/seed-demo.mjs   # 可选：填充演示数据（文章/说说/友链/评论/PV 曲线）
+npm run dev             # 访问 http://localhost:3000
 ```
 
 - 前台：<http://localhost:3000>
-- 后台：<http://localhost:3000/admin>，初始账号 `admin / admin123456`（上线前务必改掉）
+- 后台：<http://localhost:3000/admin>，初始账号 `admin / admin123456`（**上线前务必修改**）
 - 关于页内容：编辑 `content/about.md`
 
-### 数据库两种连法
-
-| 方式 | DATABASE_URL |
-| --- | --- |
-| 本机安装的 MySQL（默认 3306） | `mysql://personlog:personlog_pwd@localhost:3306/personlog` |
-| Docker 里的 MySQL（宿主机端口映射为 3307） | `mysql://personlog:personlog_pwd@localhost:3307/personlog` |
-
-数据库与账号需要提前创建：
+### 数据库准备
 
 ```sql
 CREATE DATABASE personlog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -61,39 +60,82 @@ CREATE USER 'personlog'@'localhost' IDENTIFIED BY 'personlog_pwd';
 GRANT ALL PRIVILEGES ON personlog.* TO 'personlog'@'localhost';
 ```
 
-## 冒烟测试
+## ⚙️ 环境变量
 
-服务器运行中（`npm run dev` 或 `npm run start`）时执行，验证登录/发布/删除闭环：
+| 变量 | 说明 |
+| --- | --- |
+| `DATABASE_URL` | MySQL 连接串（本机 3306 或 Docker 映射的 3307） |
+| `AUTH_SECRET` | 会话签名密钥，`openssl rand -hex 32` 生成 |
+| `NEXT_PUBLIC_SITE_URL` | 站点对外地址（影响 RSS/sitemap/JSON-LD 中的链接），上线时设为正式域名 |
+| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | 初始管理员账号（仅 seed 时使用） |
+| `MYSQL_*` | 仅 Docker 部署时使用（见 docker-compose.yml） |
+
+## 🧪 测试
+
+服务器运行中（`npm run dev` 或 `npm run start`）执行全量冒烟测试（登录/发布/评论/上传/导出等 38 项）：
 
 ```bash
 node .smoke.mjs
 ```
 
-## 常用命令
-
-| 命令 | 说明 |
-| --- | --- |
-| `npm run dev` | 开发模式 |
-| `npm run build` / `npm run start` | 生产构建 / 运行 |
-| `npm run db:push` | 同步 `prisma/schema.prisma` 到数据库 |
-| `npm run db:seed` | 初始化管理员与示例文章 |
-| `node .smoke.mjs` | 冒烟测试（需服务器运行中） |
-| `node scripts/generate-hljs-dark.mjs` | 重新生成代码高亮暗色主题 |
-
-上传的图片保存在 `data/uploads/`（已 gitignore），备份站点时记得一并备份该目录。
-
-## Docker（部署用，暂未启用）
+## 🐳 Docker 部署
 
 ```bash
-cp .env.example .env   # 服务器上部署时记得改默认密码
+cp .env.example .env   # 修改默认密码
 docker compose up -d --build
 ```
 
-应用镜像要求 `next.config.ts` 开启 `output: "standalone"`；MySQL 容器首次启动会
-自动执行 `docker/mysql/init/01-init.sql`（由 Prisma schema 生成，仅数据卷为空时执行）。
+MySQL 容器首次启动会自动执行 `docker/mysql/init/01-init.sql`（由 Prisma schema 生成）。
 
-## 数据备份
+## 🚢 上线检查清单
 
-```bash
-docker exec person-log-mysql sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE"' > backup.sql
+1. 域名购买 + 实名认证 + ICP 备案（部署在国内服务器时必办，周期约 1~3 周）
+2. 服务器 `cp .env.example .env`：修改数据库密码、`AUTH_SECRET`、`NEXT_PUBLIC_SITE_URL` 为正式域名
+3. HTTPS 证书签发后，将 `src/app/api/auth/login/route.ts` 中会话 Cookie 的 `secure` 改为 `true`
+4. 提交 `sitemap.xml` 到搜索引擎，页脚展示备案号
+5. 配置备份：`docker exec person-log-mysql sh -c 'exec mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE"' > backup.sql`
+
+## 🧹 清空演示数据
+
+```sql
+SET FOREIGN_KEY_CHECKS = 0;
+DELETE FROM comment; DELETE FROM post_tag; DELETE FROM post;
+DELETE FROM moment; DELETE FROM friend_link; DELETE FROM daily_stat;
+DELETE FROM category; DELETE FROM tag;
+SET FOREIGN_KEY_CHECKS = 1;
 ```
+
+## 📁 目录结构
+
+```
+person-log/
+├── prisma/
+│   ├── schema.prisma        # 数据模型（唯一事实来源）
+│   ├── seed.mjs             # 基础种子：管理员 + 示例文章
+│   └── seed-demo.mjs        # 演示数据：文章/说说/友链/评论/PV 曲线
+├── src/
+│   ├── app/
+│   │   ├── (site)/          # 前台：首页/文章/归档/分类/标签/说说/友链/搜索/关于
+│   │   ├── admin/           # 后台：看板/文章/评论/说说/友链/设置
+│   │   ├── api/             # REST 接口（文章/评论/上传/设置/导出/点赞…）
+│   │   ├── feed.xml         # RSS 订阅
+│   │   ├── sitemap.ts / robots.ts
+│   │   └── icon.svg         # 站点图标
+│   ├── components/          # 前后台组件
+│   └── lib/                 # 数据访问/会话认证/Markdown 渲染/统计
+├── content/about.md         # 关于页内容（Markdown）
+├── data/uploads/            # 上传图片（gitignore，注意备份）
+├── docker/                  # MySQL 初始化脚本
+├── docker-compose.yml / Dockerfile
+└── .smoke.mjs               # 冒烟测试脚本
+```
+
+## 📌 设计取舍
+
+- 评论频率限制为进程内存版（单实例够用，多实例部署需换 Redis）
+- Markdown 中的图片有意使用原生 `<img>` 语义经 next/image 优化，未引入富文本编辑器
+- AI 摘要、评论邮件通知、外接统计（Umami）依赖外部服务，暂未集成
+
+## 📄 License
+
+[MIT](LICENSE)
