@@ -1,0 +1,127 @@
+// person-log 数据模型
+// 与《需求文档.md》第 8 章对应；表结构以此文件为唯一事实来源，
+// 修改后执行 `npm run db:push` 同步到数据库
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique @db.VarChar(50)
+  passwordHash String   @db.VarChar(255) @map("password_hash")
+  displayName  String   @default("") @db.VarChar(100) @map("display_name")
+  avatarUrl    String   @default("") @db.VarChar(500) @map("avatar_url")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("user")
+}
+
+model Category {
+  id          Int    @id @default(autoincrement())
+  name        String @db.VarChar(50)
+  slug        String @unique @db.VarChar(100)
+  description String @default("") @db.VarChar(500)
+  posts       Post[]
+
+  @@map("category")
+}
+
+enum PostStatus {
+  draft
+  published
+}
+
+model Post {
+  id          Int        @id @default(autoincrement())
+  title       String     @db.VarChar(200)
+  slug        String     @unique @db.VarChar(200)
+  summary     String     @default("") @db.VarChar(500)
+  contentMd   String     @db.MediumText @map("content_md")
+  coverUrl    String     @default("") @db.VarChar(500) @map("cover_url")
+  status      PostStatus @default(draft)
+  isPinned    Boolean    @default(false) @map("is_pinned")
+  views       Int        @default(0)
+  likes       Int        @default(0)
+  categoryId  Int?       @map("category_id")
+  category    Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tags        PostTag[]
+  comments    Comment[]
+  publishedAt DateTime?  @map("published_at")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  @@index([status, publishedAt])
+  @@map("post")
+}
+
+model Tag {
+  id    Int       @id @default(autoincrement())
+  name  String    @unique @db.VarChar(50)
+  slug  String    @unique @db.VarChar(100)
+  posts PostTag[]
+
+  @@map("tag")
+}
+
+model PostTag {
+  postId Int  @map("post_id")
+  tagId  Int  @map("tag_id")
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@index([tagId])
+  @@map("post_tag")
+}
+
+enum CommentStatus {
+  pending
+  approved
+  hidden
+}
+
+model Comment {
+  id          Int           @id @default(autoincrement())
+  postId      Int           @map("post_id")
+  parentId    Int?          @map("parent_id")
+  authorName  String        @db.VarChar(50) @map("author_name")
+  authorEmail String        @db.VarChar(200) @map("author_email")
+  authorUrl   String        @default("") @db.VarChar(500) @map("author_url")
+  content     String        @db.Text
+  status      CommentStatus @default(pending)
+  ip          String        @default("") @db.VarChar(45)
+  userAgent   String        @default("") @db.VarChar(500) @map("user_agent")
+  isOwner     Boolean       @default(false) @map("is_owner")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  post        Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent      Comment?      @relation("CommentThread", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     Comment[]     @relation("CommentThread")
+
+  @@index([postId, status, createdAt])
+  @@index([parentId])
+  @@map("comment")
+}
+
+model FriendLink {
+  id          Int     @id @default(autoincrement())
+  name        String  @db.VarChar(100)
+  url         String  @db.VarChar(500)
+  avatar      String  @default("") @db.VarChar(500)
+  description String  @default("") @db.VarChar(500)
+  isVisible   Boolean @default(true) @map("is_visible")
+
+  @@map("friend_link")
+}
+
+model SiteConfig {
+  key   String @id @db.VarChar(100)
+  value String @db.Text
+
+  @@map("site_config")
+}
