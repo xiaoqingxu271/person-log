@@ -97,7 +97,7 @@ export function CommentActions({ id, postId, status, canReply }: CommentActionsP
       {replying && (
         <div className="space-y-2">
           <textarea
-            className="min-h-16 w-full rounded border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900"
+            className="min-h-16 w-full rounded border border-stone-300 bg-white px-3 py-2 text-sm focus:border-stone-900 focus:outline-none dark:border-stone-700 dark:bg-stone-900"
             placeholder="以博主身份回复（直接展示，无需审核）"
             value={reply}
             onChange={(e) => setReply(e.target.value)}
@@ -107,7 +107,7 @@ export function CommentActions({ id, postId, status, canReply }: CommentActionsP
             type="button"
             onClick={submitReply}
             disabled={busy || !reply.trim()}
-            className="rounded bg-neutral-900 px-3 py-1.5 text-xs text-white transition-colors hover:bg-neutral-700 disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900"
+            className="rounded bg-stone-900 px-3 py-1.5 text-xs text-white transition-colors hover:bg-stone-700 disabled:opacity-50 dark:bg-stone-100 dark:text-stone-900"
           >
             发送回复
           </button>

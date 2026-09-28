@@ -18,13 +18,13 @@ function StatusBadge({ status }: { status: CommentView['status'] }) {
   if (status === 'pending')
     return <span className="rounded bg-amber-100 px-1.5 text-xs text-amber-700 dark:bg-amber-950 dark:text-amber-400">待审</span>
   if (status === 'hidden')
-    return <span className="rounded bg-neutral-200 px-1.5 text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">已隐藏</span>
+    return <span className="rounded bg-stone-200 px-1.5 text-xs text-stone-600 dark:bg-stone-800 dark:text-stone-400">已隐藏</span>
   return null
 }
 
 function Avatar({ url, name }: { url: string; name: string }) {
   return (
-    <span className="flex h-8 w-8 shrink-0 select-none items-center justify-center overflow-hidden rounded-full bg-neutral-200 text-xs font-medium text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300">
+    <span className="flex h-8 w-8 shrink-0 select-none items-center justify-center overflow-hidden rounded-full bg-stone-200 text-xs font-medium text-stone-600 dark:bg-stone-700 dark:text-stone-300">
       {url ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={url} alt={`${name}的头像`} className="h-full w-full" loading="lazy" />
@@ -117,8 +117,8 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
           className={
             'rounded-lg border p-3 ' +
             (comment.status === 'hidden'
-              ? 'border-neutral-100 opacity-60 dark:border-neutral-900'
-              : 'border-neutral-100 dark:border-neutral-800')
+              ? 'border-stone-100 opacity-60 dark:border-stone-900'
+              : 'border-stone-100 dark:border-stone-800')
           }
         >
           <div className="flex items-center gap-2 text-sm">
@@ -131,7 +131,7 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
             <time
               dateTime={comment.createdAtISO}
               suppressHydrationWarning
-              className="text-xs text-neutral-400"
+              className="text-xs text-stone-400"
             >
               {timeLabel(comment.createdAtISO)}
             </time>
@@ -147,7 +147,7 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
                 setMessage(null)
                 formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
               }}
-              className="mt-2 text-xs text-neutral-500 transition-colors hover:text-neutral-900 dark:hover:text-neutral-100"
+              className="mt-2 text-xs text-stone-500 transition-colors hover:text-stone-900 dark:hover:text-stone-100"
             >
               回复
             </button>
@@ -163,16 +163,16 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
   }
 
   const input =
-    'w-full rounded border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900'
+    'w-full rounded border border-stone-300 bg-white px-3 py-2 text-sm focus:border-stone-900 focus:outline-none dark:border-stone-700 dark:bg-stone-900'
 
   return (
-    <section className="mt-12 border-t border-neutral-100 pt-8 dark:border-neutral-800">
+    <section className="mt-12 border-t border-stone-100 pt-8 dark:border-stone-800">
       <h2 className="text-xl font-bold">
-        评论 <span className="text-sm font-normal text-neutral-400">{total} 条</span>
+        评论 <span className="text-sm font-normal text-stone-400">{total} 条</span>
       </h2>
 
       {comments.length === 0 ? (
-        <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="mt-4 text-sm text-stone-500 dark:text-stone-400">
           还没有评论，来说两句吧～
         </p>
       ) : (
@@ -180,13 +180,13 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
       )}
 
       <div ref={formRef} className="mt-8">
-        <h3 className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+        <h3 className="text-sm font-semibold text-stone-700 dark:text-stone-200">
           {replyTo ? `回复 @${replyTo.authorName}` : '发表评论'}
           {replyTo && (
             <button
               type="button"
               onClick={() => setReplyTo(null)}
-              className="ml-2 text-xs font-normal text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+              className="ml-2 text-xs font-normal text-stone-400 hover:text-stone-700 dark:hover:text-stone-200"
             >
               取消回复
             </button>
@@ -244,7 +244,7 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
             type="button"
             onClick={submit}
             disabled={submitting}
-            className="rounded bg-neutral-900 px-4 py-2 text-sm text-white transition-colors hover:bg-neutral-700 disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-300"
+            className="rounded bg-stone-900 px-4 py-2 text-sm text-white transition-colors hover:bg-stone-700 disabled:opacity-50 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-300"
           >
             {submitting ? '提交中…' : replyTo ? '回复' : '发表评论'}
           </button>
@@ -261,7 +261,7 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
             </span>
           )}
           {!loggedIn && !message && (
-            <span className="text-xs text-neutral-400">评论需博主审核后展示</span>
+            <span className="text-xs text-stone-400">评论需博主审核后展示</span>
           )}
         </div>
       </div>

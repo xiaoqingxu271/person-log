@@ -14,12 +14,107 @@ body {
     "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
 }
 
+::selection {
+  background-color: var(--color-orange-200);
+  color: var(--color-orange-950);
+}
+
+.dark ::selection {
+  background-color: var(--color-orange-800);
+  color: var(--color-orange-100);
+}
+
+/* 入场动画：列表/卡片淡入上移 */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.55s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-fade-up {
+    animation: none;
+  }
+}
+
 code,
 pre {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
 }
 
-/* 代码高亮：浅色用 github 主题，深色用 hljs-dark.css（.dark 作用域的 token 颜色） */
+/* ---------- 正文排版精修 ---------- */
+
+/* 锚点跳转留出 sticky 页头的高度 */
+.prose :where([id]):not(:where([class~="not-prose"] *)) {
+  scroll-margin-top: 5.5rem;
+}
+
+.prose :where(a):not(:where([class~="not-prose"] *)) {
+  color: var(--color-orange-600);
+  font-weight: 500;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+}
+
+.prose :where(a):not(:where([class~="not-prose"] *)):hover {
+  color: var(--color-orange-500);
+}
+
+.dark .prose :where(a):not(:where([class~="not-prose"] *)) {
+  color: var(--color-orange-400);
+}
+
+.dark .prose :where(a):not(:where([class~="not-prose"] *)):hover {
+  color: var(--color-orange-300);
+}
+
+.prose :where(blockquote):not(:where([class~="not-prose"] *)) {
+  border-inline-start-color: var(--color-orange-300);
+  font-style: normal;
+}
+
+.dark .prose :where(blockquote):not(:where([class~="not-prose"] *)) {
+  border-inline-start-color: var(--color-orange-700);
+}
+
+.prose :where(code):not(:where(pre code):not(:where([class~="not-prose"] *))) {
+  border-radius: 0.375rem;
+  background-color: var(--color-stone-100);
+  padding: 0.15em 0.4em;
+  font-weight: normal;
+}
+
+.dark .prose :where(code):not(:where(pre code):not(:where([class~="not-prose"] *))) {
+  background-color: var(--color-stone-800);
+}
+
+.prose :where(h2, h3, h4):not(:where([class~="not-prose"] *)) {
+  letter-spacing: -0.02em;
+}
+
+.prose :where(hr):not(:where([class~="not-prose"] *)) {
+  border-color: var(--color-stone-200);
+}
+
+.dark .prose :where(hr):not(:where([class~="not-prose"] *)) {
+  border-color: var(--color-stone-800);
+}
+
+/* ---------- 代码高亮：浅色用 github 主题，深色用 hljs-dark.css ---------- */
+
 .prose pre {
   background-color: #f6f8fa;
   color: #24292e;

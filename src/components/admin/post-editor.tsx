@@ -134,8 +134,8 @@ export function PostEditor({ post, categories }: { post?: EditorPost; categories
   }
 
   const input =
-    'w-full rounded border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900'
-  const label = 'text-sm font-medium text-neutral-600 dark:text-neutral-300'
+    'w-full rounded border border-stone-300 bg-white px-3 py-2 text-sm focus:border-stone-900 focus:outline-none dark:border-stone-700 dark:bg-stone-900'
+  const label = 'text-sm font-medium text-stone-600 dark:text-stone-300'
 
   return (
     <div className="max-w-4xl">
@@ -144,7 +144,7 @@ export function PostEditor({ post, categories }: { post?: EditorPost; categories
         <button
           type="button"
           onClick={() => setPreview((v) => !v)}
-          className="rounded border border-neutral-300 px-3 py-1.5 text-sm transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+          className="rounded border border-stone-300 px-3 py-1.5 text-sm transition-colors hover:bg-stone-50 dark:border-stone-700 dark:hover:bg-stone-800"
         >
           {preview ? '继续编辑' : '预览'}
         </button>
@@ -152,7 +152,7 @@ export function PostEditor({ post, categories }: { post?: EditorPost; categories
 
       <div className="mt-6 space-y-5">
         <input
-          className="w-full rounded border border-neutral-300 bg-white px-3 py-2.5 text-xl font-semibold focus:border-neutral-900 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900"
+          className="w-full rounded border border-stone-300 bg-white px-3 py-2.5 text-xl font-semibold focus:border-stone-900 focus:outline-none dark:border-stone-700 dark:bg-stone-900"
           placeholder="文章标题"
           value={form.title}
           onChange={(e) => set('title', e.target.value)}
@@ -237,7 +237,7 @@ export function PostEditor({ post, categories }: { post?: EditorPost; categories
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="rounded border border-neutral-300 px-2 py-0.5 text-xs text-neutral-600 transition-colors hover:bg-neutral-50 disabled:opacity-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                className="rounded border border-stone-300 px-2 py-0.5 text-xs text-stone-600 transition-colors hover:bg-stone-50 disabled:opacity-50 dark:border-stone-700 dark:text-stone-300 dark:hover:bg-stone-800"
               >
                 {uploading ? '上传中…' : '插入图片'}
               </button>
@@ -258,7 +258,7 @@ export function PostEditor({ post, categories }: { post?: EditorPost; categories
             )}
           </div>
           {preview ? (
-            <div className="min-h-[420px] rounded border border-neutral-200 p-4 dark:border-neutral-800">
+            <div className="min-h-[420px] rounded border border-stone-200 p-4 dark:border-stone-800">
               <MarkdownView content={form.contentMd || '*暂无内容*'} />
             </div>
           ) : (
@@ -284,15 +284,15 @@ export function PostEditor({ post, categories }: { post?: EditorPost; categories
               onDragOver={(e) => e.preventDefault()}
             />
           )}
-          <p className="text-xs text-neutral-400">图片会保存到服务器 data/uploads 目录</p>
+          <p className="text-xs text-stone-400">图片会保存到服务器 data/uploads 目录</p>
         </div>
 
-        <div className="flex items-center gap-6 border-t border-neutral-100 pt-5 dark:border-neutral-800">
+        <div className="flex items-center gap-6 border-t border-stone-100 pt-5 dark:border-stone-800">
           <label className={`${label} flex items-center gap-2`} htmlFor="status">
             状态
             <select
               id="status"
-              className="rounded border border-neutral-300 bg-white px-2 py-1.5 text-sm focus:border-neutral-900 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900"
+              className="rounded border border-stone-300 bg-white px-2 py-1.5 text-sm focus:border-stone-900 focus:outline-none dark:border-stone-700 dark:bg-stone-900"
               value={form.status}
               onChange={(e) => set('status', e.target.value as EditorPost['status'])}
             >
@@ -312,12 +312,12 @@ export function PostEditor({ post, categories }: { post?: EditorPost; categories
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="rounded bg-neutral-900 px-5 py-2 text-sm text-white transition-colors hover:bg-neutral-700 disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-300"
+            className="rounded bg-stone-900 px-5 py-2 text-sm text-white transition-colors hover:bg-stone-700 disabled:opacity-50 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-300"
           >
             {saving ? '保存中…' : '保存'}
           </button>
           {isNew && !restored && (
-            <span className="text-xs text-neutral-400">新建内容会自动暂存在浏览器本地</span>
+            <span className="text-xs text-stone-400">新建内容会自动暂存在浏览器本地</span>
           )}
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}

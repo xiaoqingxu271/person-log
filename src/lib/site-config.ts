@@ -8,6 +8,7 @@ export interface SiteConfigValues {
   footerText: string
   githubUrl: string
   email: string
+  bannerUrl: string
   commentBannedWords: string
   commentAutoApproveEmails: string
 }
@@ -19,6 +20,7 @@ const KEY_MAP: Record<keyof SiteConfigValues, string> = {
   footerText: 'footer_text',
   githubUrl: 'github_url',
   email: 'email',
+  bannerUrl: 'banner_url',
   commentBannedWords: 'comment_banned_words',
   commentAutoApproveEmails: 'comment_auto_approve_emails',
 }
@@ -31,6 +33,7 @@ function defaults(): SiteConfigValues {
     footerText: `© ${new Date().getFullYear()} ${SITE.name}`,
     githubUrl: '',
     email: '',
+    bannerUrl: '',
     commentBannedWords: '',
     commentAutoApproveEmails: '',
   }

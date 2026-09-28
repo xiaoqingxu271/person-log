@@ -26,7 +26,7 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label={isDark ? '切换到浅色模式' : '切换到深色模式'}
       title="切换主题"
-      className="rounded p-1.5 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-100"
+      className="rounded p-1.5 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-100"
     >
       {isDark === null ? (
         <span className="block h-5 w-5" aria-hidden />

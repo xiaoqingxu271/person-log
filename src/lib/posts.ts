@@ -8,6 +8,7 @@ const publishedWhere: Prisma.PostWhereInput = { status: 'published' }
 const postInclude = {
   category: true,
   tags: { include: { tag: true } },
+  _count: { select: { comments: { where: { status: 'approved' } } } },
 } satisfies Prisma.PostInclude
 
 export type PostWithRelations = Prisma.PostGetPayload<{ include: typeof postInclude }>

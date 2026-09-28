@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import { getTagBySlug, listPostsByTag } from '@/lib/posts'
 import { PostCard } from '@/components/post-card'
 import { Pagination } from '@/components/pagination'
+import { PageCard, PageHeader } from '@/components/page-card'
+import { TagIcon } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,23 +29,49 @@ export default async function TagPage({ params, searchParams }: Props) {
   const { posts, totalPages } = await listPostsByTag(tag.slug, current)
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-2xl font-bold">标签：{tag.name}</h1>
-      {posts.length === 0 && <p className="text-neutral-500">该标签下还没有文章。</p>}
-      {posts.map((post) => (
-        <PostCard
-          key={post.id}
-          title={post.title}
-          slug={post.slug}
-          summary={post.summary}
-          publishedAt={post.publishedAt}
-          isPinned={post.isPinned}
-          categoryName={post.category?.name}
-          categorySlug={post.category?.slug}
-          tags={post.tags.map((t) => ({ name: t.tag.name, slug: t.tag.slug }))}
+    <div className="mx-auto w-full max-w-4xl px-4 py-10">
+      <PageCard>
+        <PageHeader
+          eyebrow="Tag"
+          title={
+            <span className="inline-flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-500 dark:bg-orange-950 dark:text-orange-400">
+                <TagIcon className="h-5 w-5" />
+              </span>
+              {tag.name}
+            </span>
+          }
+          description={`该标签下共 ${posts.length} 篇文章`}
         />
-      ))}
-      <Pagination current={current} totalPages={totalPages} basePath={`/tags/${encodeURIComponent(tag.slug)}`} />
+        {posts.length === 0 ? (
+          <p className="text-stone-500 dark:text-stone-400">该标签下还没有文章。</p>
+        ) : (
+          <div className="divide-y divide-stone-100 dark:divide-stone-800">
+            {posts.map((post) => (
+              <PostCard
+                key={post.id}
+                title={post.title}
+                slug={post.slug}
+                summary={post.summary}
+                coverUrl={post.coverUrl}
+                publishedAt={post.publishedAt}
+                isPinned={post.isPinned}
+                categoryName={post.category?.name}
+                categorySlug={post.category?.slug}
+                tags={post.tags.map((t) => ({ name: t.tag.name, slug: t.tag.slug }))}
+                views={post.views}
+                likes={post.likes}
+                commentCount={post._count.comments}
+              />
+            ))}
+          </div>
+        )}
+        <Pagination
+          current={current}
+          totalPages={totalPages}
+          basePath={`/tags/${encodeURIComponent(tag.slug)}`}
+        />
+      </PageCard>
     </div>
   )
 }

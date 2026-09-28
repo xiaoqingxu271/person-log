@@ -9,6 +9,7 @@ const ALLOWED_FIELDS: (keyof SiteConfigValues)[] = [
   'footerText',
   'githubUrl',
   'email',
+  'bannerUrl',
   'commentBannedWords',
   'commentAutoApproveEmails',
 ]

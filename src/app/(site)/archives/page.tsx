@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { listArchivePosts } from '@/lib/posts'
 import { formatDate } from '@/lib/format'
+import { PageCard, PageHeader } from '@/components/page-card'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,28 +12,51 @@ export default async function ArchivesPage() {
   const years = [...new Set(posts.map((p) => p.publishedAt?.getFullYear() ?? 0))]
 
   return (
-    <div className="space-y-10">
-      <h1 className="text-2xl font-bold">
-        归档 <span className="ml-1 text-base font-normal text-neutral-400">共 {posts.length} 篇</span>
-      </h1>
-      {posts.length === 0 && <p className="text-neutral-500">还没有文章。</p>}
-      {years.map((year) => (
-        <section key={year}>
-          <h2 className="border-b border-neutral-100 pb-2 text-lg font-semibold dark:border-neutral-800">{year}</h2>
-          <ul className="mt-3 space-y-2.5">
-            {posts
-              .filter((p) => (p.publishedAt?.getFullYear() ?? 0) === year)
-              .map((post) => (
-                <li key={post.slug} className="flex items-baseline gap-4 text-sm">
-                  <span className="shrink-0 text-neutral-400 dark:text-neutral-500">{formatDate(post.publishedAt ?? new Date(0)).slice(5)}</span>
-                  <Link href={`/posts/${post.slug}`} className="hover:underline">
-                    {post.title}
-                  </Link>
-                </li>
-              ))}
-          </ul>
-        </section>
-      ))}
+    <div className="mx-auto w-full max-w-4xl px-4 py-10">
+      <PageCard>
+        <PageHeader
+          eyebrow="Timeline"
+          title="归档"
+          description={`共 ${posts.length} 篇文章，按时间倒序`}
+        />
+        {posts.length === 0 ? (
+          <p className="text-stone-500 dark:text-stone-400">还没有文章。</p>
+        ) : (
+          <div className="ml-2 border-l border-stone-200 dark:border-stone-800">
+            {years.map((year) => (
+              <section key={year} className="relative pb-10 pl-8 last:pb-0">
+                <span
+                  aria-hidden
+                  className="absolute -left-[7px] top-1 h-3.5 w-3.5 rounded-full border-[3px] border-white bg-orange-500 dark:border-stone-900"
+                />
+                <h2 className="text-xl font-bold tracking-tight text-stone-900 dark:text-white">
+                  {year}
+                  <span className="ml-2 text-sm font-normal text-stone-400">
+                    {posts.filter((p) => (p.publishedAt?.getFullYear() ?? 0) === year).length} 篇
+                  </span>
+                </h2>
+                <ul className="mt-4 space-y-3">
+                  {posts
+                    .filter((p) => (p.publishedAt?.getFullYear() ?? 0) === year)
+                    .map((post) => (
+                      <li key={post.slug} className="flex items-baseline gap-4 text-sm">
+                        <span className="shrink-0 font-mono text-xs text-stone-400 dark:text-stone-500">
+                          {formatDate(post.publishedAt ?? new Date(0)).slice(5)}
+                        </span>
+                        <Link
+                          href={`/posts/${post.slug}`}
+                          className="text-stone-700 transition-colors hover:text-orange-600 dark:text-stone-300 dark:hover:text-orange-400"
+                        >
+                          {post.title}
+                        </Link>
+                      </li>
+                    ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        )}
+      </PageCard>
     </div>
   )
 }

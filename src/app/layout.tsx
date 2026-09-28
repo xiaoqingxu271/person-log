@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="bg-white text-neutral-900 antialiased dark:bg-neutral-950 dark:text-neutral-200">
+      <body className="bg-stone-50 text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-200">
         {children}
       </body>
     </html>

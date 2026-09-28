@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { LogoutIcon } from '@/components/icons'
 
 export function LogoutButton() {
   const router = useRouter()
@@ -13,10 +14,13 @@ export function LogoutButton() {
 
   return (
     <button
+      type="button"
       onClick={handleLogout}
-      className="mt-2 text-left text-sm text-neutral-500 transition-colors hover:text-neutral-900 dark:hover:text-neutral-100"
+      title="退出登录"
+      aria-label="退出登录"
+      className="rounded-lg p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700 dark:hover:bg-stone-800 dark:hover:text-stone-200"
     >
-      退出登录
+      <LogoutIcon className="h-4 w-4" />
     </button>
   )
 }

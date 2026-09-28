@@ -10,6 +10,9 @@ import { formatDate } from '@/lib/format'
 import { Toc } from '@/components/toc'
 import { LikeButton } from '@/components/like-button'
 import { CommentSection } from '@/components/comments/comment-section'
+import { ReadingProgress } from '@/components/reading-progress'
+import { PageCard } from '@/components/page-card'
+import { CalendarIcon, EyeIcon } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,54 +50,76 @@ export default async function PostPage({ params }: Props) {
   const toc = await extractToc(post.contentMd)
 
   return (
-    <div className="flex gap-10">
-      <article className="min-w-0 flex-1">
-        {post.status === 'draft' && (
-          <p className="mb-6 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-400">
-            草稿预览：本页仅登录用户可见，游客访问会得到 404。
-          </p>
-        )}
-        <header>
-          <h1 className="text-3xl font-bold leading-snug">{post.title}</h1>
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400">
-            {post.publishedAt && (
-              <time dateTime={post.publishedAt.toISOString()}>{formatDate(post.publishedAt)}</time>
-            )}
-            {post.category && (
-              <Link
-                href={`/categories/${encodeURIComponent(post.category.slug)}`}
-                className="transition-colors hover:text-neutral-800 dark:hover:text-neutral-200"
-              >
-                {post.category.name}
-              </Link>
-            )}
-            {post.status === 'published' && <span>{post.views + 1} 次阅读</span>}
+    <>
+      <ReadingProgress />
+      <div className="mx-auto w-full max-w-5xl px-4 py-10">
+        <PageCard wide>
+          <div className="flex gap-10">
+            <article className="min-w-0 flex-1">
+              {post.status === 'draft' && (
+                <p className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-400">
+                  草稿预览：本页仅登录用户可见，游客访问会得到 404。
+                </p>
+              )}
+              <header>
+                {post.category && (
+                  <Link
+                    href={`/categories/${encodeURIComponent(post.category.slug)}`}
+                    className="text-xs font-medium uppercase tracking-[0.3em] text-orange-500 transition-colors hover:text-orange-400 dark:text-orange-400"
+                  >
+                    {post.category.name}
+                  </Link>
+                )}
+                <h1 className="mt-3 text-3xl font-bold leading-snug tracking-tight text-stone-900 dark:text-white sm:text-4xl">
+                  {post.title}
+                </h1>
+                <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-stone-400 dark:text-stone-500">
+                  {post.publishedAt && (
+                    <span className="inline-flex items-center gap-1.5">
+                      <CalendarIcon className="h-4 w-4" />
+                      <time dateTime={post.publishedAt.toISOString()}>{formatDate(post.publishedAt)}</time>
+                    </span>
+                  )}
+                  {post.status === 'published' && (
+                    <span className="inline-flex items-center gap-1.5">
+                      <EyeIcon className="h-4 w-4" />
+                      {post.views + 1} 次阅读
+                    </span>
+                  )}
+                </div>
+              </header>
+
+              <div className="mt-8">
+                <MarkdownView content={post.contentMd} />
+              </div>
+
+              <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-stone-100 pt-6 dark:border-stone-800">
+                {post.tags.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {post.tags.map((t) => (
+                      <Link
+                        key={t.tag.slug}
+                        href={`/tags/${encodeURIComponent(t.tag.slug)}`}
+                        className="rounded-full bg-stone-100 px-3 py-1 text-xs text-stone-500 transition-colors hover:bg-stone-200 hover:text-stone-800 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700 dark:hover:text-stone-200"
+                      >
+                        #{t.tag.name}
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <span />
+                )}
+                <LikeButton postId={post.id} initialLikes={post.likes} />
+              </div>
+
+              <CommentSection postId={post.id} comments={comments} loggedIn={Boolean(user)} />
+            </article>
+            <aside className="hidden w-56 shrink-0 xl:block">
+              {toc.length >= 2 && <Toc items={toc} />}
+            </aside>
           </div>
-        </header>
-        <div className="mt-8">
-          <MarkdownView content={post.contentMd} />
-        </div>
-        <div className="mt-10 flex flex-wrap items-center gap-4 border-t border-neutral-100 pt-6 dark:border-neutral-800">
-          {post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {post.tags.map((t) => (
-                <Link
-                  key={t.tag.slug}
-                  href={`/tags/${encodeURIComponent(t.tag.slug)}`}
-                  className="rounded bg-neutral-100 px-2 py-1 text-xs text-neutral-500 transition-colors hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700"
-                >
-                  #{t.tag.name}
-                </Link>
-              ))}
-            </div>
-          )}
-          <LikeButton postId={post.id} initialLikes={post.likes} />
-        </div>
-        <CommentSection postId={post.id} comments={comments} loggedIn={Boolean(user)} />
-      </article>
-      <aside className="hidden w-56 shrink-0 xl:block">
-        {toc.length >= 2 && <Toc items={toc} />}
-      </aside>
-    </div>
+        </PageCard>
+      </div>
+    </>
   )
 }

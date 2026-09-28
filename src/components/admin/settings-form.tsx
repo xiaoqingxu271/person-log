@@ -12,6 +12,13 @@ const FIELDS: { key: keyof SiteConfigValues; label: string; placeholder: string;
   { key: 'githubUrl', label: 'GitHub 主页（可选）', placeholder: 'https://github.com/yourname' },
   { key: 'email', label: '联系邮箱（可选）', placeholder: 'me@example.com' },
   {
+    key: 'bannerUrl',
+    label: '首页横幅背景图（可选）',
+    placeholder: 'https://… 或 /api/uploads/202601/xxx.png',
+    hint: '不填则使用渐变+纹理的默认样式；填入后自动压暗并叠加文字',
+    textarea: true,
+  },
+  {
     key: 'commentBannedWords',
     label: '评论黑名单关键词（用逗号分隔）',
     placeholder: '如 广告,代刷,博彩',
@@ -57,15 +64,14 @@ export function SettingsForm({ initial }: { initial: SiteConfigValues }) {
   }
 
   const input =
-    'w-full rounded border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-neutral-900 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900'
+    'w-full rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 dark:border-stone-700 dark:bg-stone-900'
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-xl font-bold">站点设置</h1>
-      <div className="mt-6 space-y-5">
+      <div className="space-y-5">
         {FIELDS.map((field) => (
           <div key={field.key} className="space-y-1.5">
-            <label className="text-sm font-medium text-neutral-600 dark:text-neutral-300" htmlFor={field.key}>
+            <label className="text-sm font-medium text-stone-600 dark:text-stone-300" htmlFor={field.key}>
               {field.label}
             </label>
             {field.textarea ? (
@@ -85,15 +91,15 @@ export function SettingsForm({ initial }: { initial: SiteConfigValues }) {
                 onChange={(e) => setValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
               />
             )}
-            {field.hint && <p className="text-xs text-neutral-400">{field.hint}</p>}
+            {field.hint && <p className="text-xs text-stone-400">{field.hint}</p>}
           </div>
         ))}
-        <div className="flex items-center gap-3 border-t border-neutral-100 pt-5 dark:border-neutral-800">
+        <div className="flex items-center gap-3 border-t border-stone-100 pt-5 dark:border-stone-800">
           <button
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="rounded bg-neutral-900 px-5 py-2 text-sm text-white transition-colors hover:bg-neutral-700 disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-300"
+            className="rounded-full bg-stone-900 px-5 py-2 text-sm text-white transition-colors hover:bg-stone-700 disabled:opacity-50 dark:bg-white dark:text-stone-900 dark:hover:bg-stone-200"
           >
             {saving ? '保存中…' : '保存设置'}
           </button>

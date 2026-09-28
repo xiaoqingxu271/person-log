@@ -1,6 +1,7 @@
 import { readFile } from 'fs/promises'
 import path from 'path'
 import { MarkdownView } from '@/lib/markdown'
+import { PageCard, PageHeader } from '@/components/page-card'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,9 +18,11 @@ async function loadAbout() {
 export default async function AboutPage() {
   const content = await loadAbout()
   return (
-    <div>
-      <h1 className="mb-8 text-2xl font-bold">关于</h1>
-      <MarkdownView content={content} />
+    <div className="mx-auto w-full max-w-4xl px-4 py-10">
+      <PageCard>
+        <PageHeader eyebrow="About" title="关于" />
+        <MarkdownView content={content} />
+      </PageCard>
     </div>
   )
 }

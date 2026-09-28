@@ -35,8 +35,8 @@ export function Toc({ items }: { items: TocItem[] }) {
       aria-label="文章目录"
       className="sticky top-8 max-h-[calc(100vh-5rem)] overflow-y-auto text-sm"
     >
-      <div className="mb-2 font-semibold text-neutral-900 dark:text-neutral-100">目录</div>
-      <ul className="space-y-1 border-l border-neutral-200 dark:border-neutral-800">
+      <div className="mb-2 font-semibold text-stone-900 dark:text-stone-100">目录</div>
+      <ul className="space-y-1 border-l border-stone-200 dark:border-stone-800">
         {items.map((item) => (
           <li key={item.id}>
             <a
@@ -45,8 +45,8 @@ export function Toc({ items }: { items: TocItem[] }) {
                 '-ml-px block border-l py-0.5 transition-colors ' +
                 (item.level === 3 ? 'pl-5 ' : 'pl-3 ') +
                 (activeId === item.id
-                  ? 'border-neutral-900 font-medium text-neutral-900 dark:border-neutral-100 dark:text-white'
-                  : 'border-transparent text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300')
+                  ? 'border-stone-900 font-medium text-stone-900 dark:border-stone-100 dark:text-white'
+                  : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-300')
               }
             >
               {item.text}

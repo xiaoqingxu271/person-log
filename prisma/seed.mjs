@@ -16,6 +16,12 @@ async function main() {
   })
   console.log(`管理员账号就绪：${username} / ${password}（上线前请务必修改密码）`)
 
+  await prisma.siteConfig.upsert({
+    where: { key: 'github_url' },
+    update: {},
+    create: { key: 'github_url', value: 'https://github.com/xiaoqingxu271?tab=repositories' },
+  })
+
   const category = await prisma.category.upsert({
     where: { slug: '随笔' },
     update: {},
