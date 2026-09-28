@@ -1,7 +1,7 @@
 import { createHash } from 'crypto'
 import { prisma } from '@/lib/db'
 import { getSiteConfig } from '@/lib/site-config'
-import type { Comment, CommentStatus } from '@prisma/client'
+import type { CommentStatus } from '@prisma/client'
 
 /** 头像：邮箱 md5 匹配 Cravatar（国内可用的 Gravatar 镜像），无匹配时由其生成默认头像 */
 export function avatarUrlFor(email: string, size = 80): string {

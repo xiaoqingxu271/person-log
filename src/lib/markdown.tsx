@@ -25,7 +25,7 @@ export function MarkdownView({ content }: { content: string }) {
         rehypePlugins={[rehypeSlug, rehypeHighlight, [rehypeSanitize, sanitizeSchema]]}
         components={{
           pre: ({ node: _node, ...rest }) => <CodeBlock {...rest} />,
-          img: ({ node: _node, ...rest }) => <img loading="lazy" decoding="async" {...rest} />,
+          img: ({ node: _node, alt = '', ...rest }) => <img alt={alt} loading="lazy" decoding="async" {...rest} />,
         }}
       >
         {content}

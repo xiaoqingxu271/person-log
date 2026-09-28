@@ -21,6 +21,8 @@ export function LikeButton({ postId, initialLikes }: { postId: number; initialLi
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
+    // 挂载后读取 localStorage 的点赞记录，避免 SSR/CSR 不一致
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLiked(getLikedIds().includes(postId))
   }, [postId])
 

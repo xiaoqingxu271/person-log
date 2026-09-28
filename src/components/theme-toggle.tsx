@@ -10,6 +10,8 @@ export function ThemeToggle() {
   const [isDark, setIsDark] = useState<boolean | null>(null)
 
   useEffect(() => {
+    // 引导脚本已在首屏前设置好 html.dark，这里同步到组件状态（需挂载后读取 DOM）
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsDark(document.documentElement.classList.contains('dark'))
   }, [])
 

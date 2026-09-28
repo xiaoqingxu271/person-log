@@ -45,14 +45,19 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
   const [replyTo, setReplyTo] = useState<CommentView | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [message, setMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
-  const mountedAt = useRef(Date.now())
+  const mountedAt = useRef(0)
   const formRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    // 挂载后读取浏览器本地数据回填，避免 SSR/CSR 不一致
+    mountedAt.current = Date.now()
     try {
       const saved = JSON.parse(localStorage.getItem('personlog_commenter') ?? '{}')
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- 挂载后回填访客信息
       if (typeof saved.name === 'string') setName(saved.name)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (typeof saved.email === 'string') setEmail(saved.email)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (typeof saved.url === 'string') setUrl(saved.url)
     } catch {
       /* 忽略损坏的本地数据 */

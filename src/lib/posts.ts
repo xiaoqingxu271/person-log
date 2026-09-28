@@ -38,13 +38,15 @@ export async function listPostsByTag(slug: string, page = 1, perPage = POSTS_PER
 export async function searchPosts(query: string, page = 1, perPage = POSTS_PER_PAGE): Promise<ListResult> {
   const words = query.trim().split(/\s+/).filter(Boolean).slice(0, 5)
   if (words.length === 0) return { posts: [], total: 0, totalPages: 1 }
+  // 转义 LIKE 通配符，避免用户输入的 % 和 _ 影响匹配语义
+  const like = (word: string) => word.replace(/[\\%_]/g, '\\$&')
   const where: Prisma.PostWhereInput = {
     ...publishedWhere,
     AND: words.map((word) => ({
       OR: [
-        { title: { contains: word } },
-        { summary: { contains: word } },
-        { contentMd: { contains: word } },
+        { title: { contains: like(word) } },
+        { summary: { contains: like(word) } },
+        { contentMd: { contains: like(word) } },
       ],
     })),
   }

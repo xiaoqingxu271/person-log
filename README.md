@@ -26,6 +26,7 @@
   - 说说/时间线 `/moments`：后台发布器（支持配图上传）、前台时间线展示
   - 友链 `/friends`：后台增删改 + 显示/隐藏，前台卡片墙
   - 相关文章推荐（同标签）、文章页 JSON-LD 结构化数据（BlogPosting）
+- ✅ 定版体检（2026-09-29）：`npm audit` 0 漏洞（Prisma 锁定 6.12.0）、`npm run lint` 0 错误、搜索 LIKE 通配符转义、Docker standalone 按需构建（BUILD_STANDALONE=1）、`NEXT_PUBLIC_SITE_URL` 支持正式域名
 - ⬜ M4 部署上线（暂缓）：域名/备案、服务器部署、HTTPS、备份脚本
 - ⬜ 更远期（依赖外部服务或低优先）：评论邮件通知（需 SMTP）、AI 摘要（需 API）、留言板、相册、外接统计（Umami）
 

@@ -51,6 +51,7 @@ export function PostEditor({ post, categories }: { post?: EditorPost; categories
     const saved = localStorage.getItem(DRAFT_KEY)
     if (saved) {
       try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- 挂载后恢复本地草稿
         setForm({ ...emptyPost, ...JSON.parse(saved) })
         setRestored(true)
       } catch {
