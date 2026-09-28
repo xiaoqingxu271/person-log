@@ -64,6 +64,16 @@ async function main() {
   r = await fetch(`${base}/api/uploads/%2e%2e/%2e%2e/.env`)
   check('M2 目录穿越被拦截', r.status !== 200, `status=${r.status}`)
 
+  // next/image 优化链路：1x1 PNG 经优化器输出可访问的图片响应
+  const optimized = await fetch(
+    `${base}/_next/image?url=${encodeURIComponent(upData.url ?? '/images/hero-default.jpg')}&w=256&q=75`,
+  )
+  check(
+    'M2 next/image 优化链路',
+    optimized.status === 200 && (optimized.headers.get('content-type') ?? '').startsWith('image/'),
+    optimized.headers.get('content-type') ?? '',
+  )
+
   const exp = await fetch(`${base}/api/export`, { headers: { cookie } })
   const expBuf = Buffer.from(await exp.arrayBuffer())
   check('M2 导出 zip', exp.status === 200 && expBuf.subarray(0, 2).toString() === 'PK')

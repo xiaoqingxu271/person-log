@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { ChevronDownIcon } from '@/components/icons'
 
 interface SiteHeroProps {
@@ -18,12 +19,13 @@ export function SiteHero({ siteName, tagline, description, bannerUrl, stats }: S
   return (
     <section className="relative">
       <div className="relative flex min-h-[74vh] items-center justify-center overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={image}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover"
-          fetchPriority="high"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
         />
         <div
           aria-hidden

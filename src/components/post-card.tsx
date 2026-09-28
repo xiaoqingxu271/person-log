@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { formatDate } from '@/lib/format'
 import { ArrowRightIcon, CalendarIcon, EyeIcon, FolderIcon, HeartIcon, MessageIcon } from '@/components/icons'
 
@@ -59,14 +60,16 @@ export function PostCard({
   return (
     <article className="group py-8 first:pt-0 last:pb-0">
       {coverUrl && (
-        <Link href={`/posts/${slug}`} className="mb-5 block overflow-hidden rounded-2xl">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={coverUrl}
-            alt={title}
-            loading="lazy"
-            className="aspect-[21/9] w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-          />
+        <Link href={`/posts/${slug}`} className="mb-5 block">
+          <span className="relative block aspect-[21/9] overflow-hidden rounded-2xl">
+            <Image
+              src={coverUrl}
+              alt={title}
+              fill
+              sizes="(max-width: 896px) 100vw, 832px"
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+            />
+          </span>
         </Link>
       )}
       <div className="flex items-center gap-2 text-xs text-stone-400 dark:text-stone-500">

@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
@@ -25,7 +26,19 @@ export function MarkdownView({ content }: { content: string }) {
         rehypePlugins={[rehypeSlug, rehypeHighlight, [rehypeSanitize, sanitizeSchema]]}
         components={{
           pre: ({ node: _node, ...rest }) => <CodeBlock {...rest} />,
-          img: ({ node: _node, alt = '', ...rest }) => <img alt={alt} loading="lazy" decoding="async" {...rest} />,
+          // 正文图片走 next/image 优化（AVIF/WebP + 响应式尺寸 + 懒加载）；
+          // 忽略 markdown 里手写的 width/height，统一按容器宽度响应式渲染
+          img: ({ node: _node, alt = '', src, width: _w, height: _h, ...rest }) => (
+            <Image
+              {...rest}
+              src={typeof src === 'string' ? src : ''}
+              alt={alt}
+              width={0}
+              height={0}
+              sizes="(max-width: 768px) 100vw, 700px"
+              className="h-auto w-full rounded-lg"
+            />
+          ),
         }}
       >
         {content}

@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { listMoments } from '@/lib/moments'
 import { formatDate } from '@/lib/format'
 import { PageCard, PageHeader } from '@/components/page-card'
@@ -32,12 +33,13 @@ export default async function MomentsPage() {
                   {moment.content}
                 </p>
                 {moment.imageUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={moment.imageUrl}
                     alt=""
-                    loading="lazy"
-                    className="mt-3 max-h-96 rounded-2xl border border-stone-100 object-cover dark:border-stone-800"
+                    width={0}
+                    height={0}
+                    sizes="(max-width: 768px) 100vw, 700px"
+                    className="mt-3 h-auto max-h-96 w-auto rounded-2xl border border-stone-100 dark:border-stone-800"
                   />
                 )}
                 <p className="mt-2.5 flex items-center gap-1.5 text-xs text-stone-400 dark:text-stone-500">
