@@ -2,12 +2,24 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { FileTextIcon, MessageIcon, SettingsIcon, DownloadIcon, ExternalLinkIcon } from '@/components/icons'
+import {
+  HomeIcon,
+  FileTextIcon,
+  MessageIcon,
+  PenLineIcon,
+  LinkIcon,
+  SettingsIcon,
+  DownloadIcon,
+  ExternalLinkIcon,
+} from '@/components/icons'
 
 const items = [
-  { href: '/admin/posts', label: '文章管理', icon: FileTextIcon },
-  { href: '/admin/comments', label: '评论管理', icon: MessageIcon },
-  { href: '/admin/settings', label: '站点设置', icon: SettingsIcon },
+  { href: '/admin', label: '总览', icon: HomeIcon, exact: true },
+  { href: '/admin/posts', label: '文章管理', icon: FileTextIcon, exact: false },
+  { href: '/admin/comments', label: '评论管理', icon: MessageIcon, exact: false },
+  { href: '/admin/moments', label: '说说管理', icon: PenLineIcon, exact: false },
+  { href: '/admin/friends', label: '友链管理', icon: LinkIcon, exact: false },
+  { href: '/admin/settings', label: '站点设置', icon: SettingsIcon, exact: false },
 ]
 
 /** 后台侧栏导航：当前页高亮；评论管理带待审数量角标 */
@@ -23,7 +35,7 @@ export function AdminNav({ pendingCount }: { pendingCount: number }) {
   return (
     <nav className="flex flex-1 flex-col gap-1">
       {items.map((item) => {
-        const active = pathname.startsWith(item.href)
+        const active = item.exact ? pathname === item.href : pathname.startsWith(item.href)
         return (
           <Link key={item.href} href={item.href} className={itemClass(active)}>
             <item.icon className="h-4 w-4 shrink-0" />

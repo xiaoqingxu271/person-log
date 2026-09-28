@@ -185,9 +185,67 @@ async function main() {
   })
   check('M3 游客审核被拒(401)', guestPatch.status === 401)
 
+  // ================= M5：长期演进 =================
+  r = await fetch(`${base}/moments`)
+  check('M5 说说页 200', r.status === 200)
+  r = await fetch(`${base}/friends`)
+  check('M5 友链页 200', r.status === 200)
+
+  r = await fetch(`${base}/posts/hello-person-log`)
+  check('M5 结构化数据 JSON-LD', (await r.text()).includes('application/ld+json'))
+
+  const moment = await fetch(`${base}/api/moments`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', cookie },
+    body: JSON.stringify({ content: 'M5 冒烟测试说说' }),
+  })
+  const momentData = await moment.json().catch(() => ({}))
+  check('M5 发布说说', moment.ok, JSON.stringify(momentData))
+  r = await fetch(`${base}/moments`)
+  check('M5 说说前台可见', (await r.text()).includes('M5 冒烟测试说说'))
+  const guestMoment = await fetch(`${base}/api/moments`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: '游客说说' }),
+  })
+  check('M5 游客发说说被拒(401)', guestMoment.status === 401)
+
+  const friend = await fetch(`${base}/api/friends`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', cookie },
+    body: JSON.stringify({ name: 'M5 测试友链', url: 'https://example.com', description: '测试' }),
+  })
+  const friendData = await friend.json().catch(() => ({}))
+  check('M5 添加友链', friend.ok)
+  r = await fetch(`${base}/friends`)
+  check('M5 友链前台可见', (await r.text()).includes('M5 测试友链'))
+
+  r = await fetch(`${base}/admin`, { headers: { cookie } })
+  check('M5 数据看板', r.status === 200 && (await r.text()).includes('最近 14 天浏览'))
+
+  const relPost = await fetch(`${base}/api/posts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', cookie },
+    body: JSON.stringify({ title: 'M5 相关文章测试', contentMd: 'x', status: 'published', tagNames: '建站' }),
+  })
+  const relData = await relPost.json().catch(() => ({}))
+  check('M5 发布同标签文章', relPost.ok)
+  r = await fetch(`${base}/posts/hello-person-log`)
+  const relPage = await r.text()
+  check('M5 相关文章推荐', relPage.includes('相关文章') && relPage.includes('M5 相关文章测试'))
+
   // ================= 清理 =================
   for (const id of [guestCommentId, replyData.id, whiteData.id].filter(Boolean)) {
     await fetch(`${base}/api/comments/${id}`, { method: 'DELETE', headers: { cookie } })
+  }
+  if (momentData.id) {
+    await fetch(`${base}/api/moments?id=${momentData.id}`, { method: 'DELETE', headers: { cookie } })
+  }
+  if (friendData.id) {
+    await fetch(`${base}/api/friends/${friendData.id}`, { method: 'DELETE', headers: { cookie } })
+  }
+  if (relData.id) {
+    await fetch(`${base}/api/posts/${relData.id}`, { method: 'DELETE', headers: { cookie } })
   }
   if (testPostId) {
     await fetch(`${base}/api/posts/${testPostId}`, { method: 'DELETE', headers: { cookie } })

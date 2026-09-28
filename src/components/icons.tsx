@@ -167,3 +167,30 @@ export function LogoutIcon({ className }: IconProps) {
     </svg>
   )
 }
+
+export function HomeIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M3 10.5 12 3l9 7.5" />
+      <path d="M5 9.5V21h14V9.5" />
+      <path d="M10 21v-6h4v6" />
+    </svg>
+  )
+}
+
+export function LinkIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7" />
+      <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7" />
+    </svg>
+  )
+}
+
+export function PenLineIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </svg>
+  )
+}

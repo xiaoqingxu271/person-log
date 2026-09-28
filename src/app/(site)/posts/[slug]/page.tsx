@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getPostBySlug, incrementPostViews } from '@/lib/posts'
+import { getPostBySlug, incrementPostViews, listRelatedPosts } from '@/lib/posts'
 import { listCommentsForPost } from '@/lib/comments'
 import { getSessionUser } from '@/lib/session'
+import { getSiteConfig } from '@/lib/site-config'
 import { extractToc } from '@/lib/toc'
 import { MarkdownView } from '@/lib/markdown'
 import { formatDate } from '@/lib/format'
@@ -13,6 +14,9 @@ import { CommentSection } from '@/components/comments/comment-section'
 import { ReadingProgress } from '@/components/reading-progress'
 import { PageCard } from '@/components/page-card'
 import { CalendarIcon, EyeIcon } from '@/components/icons'
+import { SITE } from '@/lib/site'
+
+const SITE_URL = SITE.url
 
 export const dynamic = 'force-dynamic'
 
@@ -48,10 +52,32 @@ export default async function PostPage({ params }: Props) {
   }
   const comments = await listCommentsForPost(post.id, Boolean(user))
   const toc = await extractToc(post.contentMd)
+  const cfg = await getSiteConfig()
+  const related = await listRelatedPosts(
+    post.id,
+    post.tags.map((t) => t.tag.slug),
+  )
+
+  // F-41 结构化数据：BlogPosting JSON-LD
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.summary || undefined,
+    datePublished: post.publishedAt?.toISOString(),
+    dateModified: post.updatedAt.toISOString(),
+    author: { '@type': 'Person', name: cfg.siteName, url: cfg.githubUrl || undefined },
+    image: post.coverUrl || undefined,
+    mainEntityOfPage: `${SITE_URL}/posts/${post.slug}`,
+  }
 
   return (
     <>
       <ReadingProgress />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="mx-auto w-full max-w-5xl px-4 py-10">
         <PageCard wide>
           <div className="flex gap-10">
@@ -111,6 +137,27 @@ export default async function PostPage({ params }: Props) {
                 )}
                 <LikeButton postId={post.id} initialLikes={post.likes} />
               </div>
+
+              {related.length > 0 && (
+                <section className="mt-8 rounded-2xl bg-stone-50 p-5 dark:bg-stone-800/50">
+                  <h2 className="text-sm font-semibold text-stone-900 dark:text-stone-100">相关文章</h2>
+                  <ul className="mt-3 space-y-2.5">
+                    {related.map((item) => (
+                      <li key={item.slug} className="flex items-baseline justify-between gap-4 text-sm">
+                        <Link
+                          href={`/posts/${item.slug}`}
+                          className="min-w-0 truncate text-stone-600 transition-colors hover:text-orange-600 dark:text-stone-400 dark:hover:text-orange-400"
+                        >
+                          {item.title}
+                        </Link>
+                        <span className="shrink-0 text-xs text-stone-400">
+                          {item.views} 阅读
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
 
               <CommentSection postId={post.id} comments={comments} loggedIn={Boolean(user)} />
             </article>

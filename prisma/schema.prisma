@@ -125,3 +125,19 @@ model SiteConfig {
 
   @@map("site_config")
 }
+
+model Moment {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.Text
+  imageUrl  String   @default("") @db.VarChar(500) @map("image_url")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("moment")
+}
+
+model DailyStat {
+  date String @id @db.VarChar(10)
+  pv   Int    @default(0)
+
+  @@map("daily_stat")
+}

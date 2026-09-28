@@ -10,6 +10,8 @@ const nav = [
   { href: '/archives', label: '归档' },
   { href: '/categories', label: '分类' },
   { href: '/tags', label: '标签' },
+  { href: '/moments', label: '说说' },
+  { href: '/friends', label: '友链' },
   { href: '/about', label: '关于' },
 ]
 

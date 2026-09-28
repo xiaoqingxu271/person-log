@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import { recordDailyPv } from '@/lib/stats'
 import type { Prisma } from '@prisma/client'
 
 export const POSTS_PER_PAGE = 10
@@ -116,9 +117,25 @@ export async function deletePost(id: number) {
   await prisma.post.delete({ where: { id } })
 }
 
-/** F-22 浏览量：详情页每次访问自增 */
+/** F-22 浏览量：详情页每次访问自增（同时记录每日 PV 用于看板趋势） */
 export async function incrementPostViews(id: number) {
   await prisma.post.update({ where: { id }, data: { views: { increment: 1 } } })
+  await recordDailyPv()
+}
+
+/** F-11 相关文章：按共同标签推荐（不含自身） */
+export async function listRelatedPosts(postId: number, tagSlugs: string[], take = 3) {
+  if (tagSlugs.length === 0) return []
+  return prisma.post.findMany({
+    where: {
+      status: 'published',
+      id: { not: postId },
+      tags: { some: { tag: { slug: { in: tagSlugs } } } },
+    },
+    orderBy: [{ isPinned: 'desc' }, { publishedAt: 'desc' }],
+    select: { title: true, slug: true, publishedAt: true, views: true },
+    take,
+  })
 }
 
 export interface SavePostInput {
