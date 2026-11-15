@@ -28,6 +28,15 @@ export async function listMoments(take = 100) {
   return prisma.moment.findMany({ orderBy: { createdAt: 'desc' }, take })
 }
 
+/** 近 7 天是否有新说说（导航铃铛红点） */
+export async function hasRecentMoment(): Promise<boolean> {
+  const since = new Date(Date.now() - 7 * 86400000)
+  const found = await prisma.moment
+    .findFirst({ where: { createdAt: { gte: since } }, select: { id: true } })
+    .catch(() => null)
+  return Boolean(found)
+}
+
 export async function adminListMoments(take = 100) {
   return prisma.moment.findMany({ orderBy: { createdAt: 'desc' }, take })
 }

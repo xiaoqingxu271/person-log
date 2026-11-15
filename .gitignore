@@ -42,3 +42,6 @@ next-env.d.ts
 
 # 本地上传的图片（运行时生成，不进仓库）
 data/
+
+# 图片生成的原始产物（优化后的成品在 public/images/）
+vibe_images/

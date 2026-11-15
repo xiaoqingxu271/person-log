@@ -20,7 +20,7 @@ const sanitizeSchema = {
 /** Markdown 渲染组件：前后台通用（GFM + 标题锚点 + 代码高亮 + 消毒 + 图片懒加载） */
 export function MarkdownView({ content }: { content: string }) {
   return (
-    <div className="prose prose-neutral max-w-none dark:prose-invert">
+    <div className="prose prose-invert max-w-none">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeSlug, rehypeHighlight, [rehypeSanitize, sanitizeSchema]]}

@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getTagBySlug, listPostsByTag } from '@/lib/posts'
-import { PostCard } from '@/components/post-card'
-import { Pagination } from '@/components/pagination'
-import { PageCard, PageHeader } from '@/components/page-card'
-import { TagIcon } from '@/components/icons'
+import { getTagBySlug, listPostsByTag, listTagsWithCount } from '@/lib/posts'
+import { TagCloud } from '@/components/tag-cloud'
+import { TagSection } from '@/components/tag-section'
+import { Flourish } from '@/components/flourish'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,52 +25,28 @@ export default async function TagPage({ params, searchParams }: Props) {
   if (!tag) notFound()
 
   const current = Math.max(1, Number(page) || 1)
-  const { posts, totalPages } = await listPostsByTag(tag.slug, current)
+  const [{ posts, total, totalPages }, tags] = await Promise.all([
+    listPostsByTag(tag.slug, current),
+    listTagsWithCount(),
+  ])
+  const cloud = tags.map((t) => ({ id: t.id, name: t.name, slug: t.slug, count: t._count.posts }))
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-10">
-      <PageCard>
-        <PageHeader
-          eyebrow="Tag"
-          title={
-            <span className="inline-flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-500 dark:bg-orange-950 dark:text-orange-400">
-                <TagIcon className="h-5 w-5" />
-              </span>
-              {tag.name}
-            </span>
-          }
-          description={`该标签下共 ${posts.length} 篇文章`}
-        />
-        {posts.length === 0 ? (
-          <p className="text-stone-500 dark:text-stone-400">该标签下还没有文章。</p>
-        ) : (
-          <div className="divide-y divide-stone-100 dark:divide-stone-800">
-            {posts.map((post) => (
-              <PostCard
-                key={post.id}
-                title={post.title}
-                slug={post.slug}
-                summary={post.summary}
-                coverUrl={post.coverUrl}
-                publishedAt={post.publishedAt}
-                isPinned={post.isPinned}
-                categoryName={post.category?.name}
-                categorySlug={post.category?.slug}
-                tags={post.tags.map((t) => ({ name: t.tag.name, slug: t.tag.slug }))}
-                views={post.views}
-                likes={post.likes}
-                commentCount={post._count.comments}
-              />
-            ))}
-          </div>
-        )}
-        <Pagination
-          current={current}
-          totalPages={totalPages}
-          basePath={`/tags/${encodeURIComponent(tag.slug)}`}
-        />
-      </PageCard>
+    <div className="mx-auto w-full max-w-5xl px-3 py-8 sm:px-4">
+      <TagCloud tags={cloud} activeSlug={tag.slug} />
+      <TagSection
+        name={tag.name}
+        slug={tag.slug}
+        posts={posts}
+        total={total}
+        current={current}
+        totalPages={totalPages}
+      />
+      <div className="mt-10 flex items-center justify-center gap-4">
+        <Flourish className="h-4 w-24" />
+        <p className="text-xs tracking-wider text-slate-500">去看更大的世界，也去遇见更好的自己</p>
+        <Flourish className="h-4 w-24" flip />
+      </div>
     </div>
   )
 }

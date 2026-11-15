@@ -40,6 +40,34 @@ export async function getDailyPvSeries(days = 14): Promise<PvSeriesPoint[]> {
   return points.map((p) => ({ ...p, pv: map.get(p.date) ?? 0 }))
 }
 
+/** 前台全站统计：文章/分类/标签/获赞/评论/阅读/写作天数 */
+export async function getBlogStats() {
+  const [posts, categories, tags, agg, comments, first] = await Promise.all([
+    prisma.post.count({ where: { status: 'published' } }),
+    prisma.category.count(),
+    prisma.tag.count(),
+    prisma.post.aggregate({ where: { status: 'published' }, _sum: { views: true, likes: true } }),
+    prisma.comment.count({ where: { status: 'approved' } }),
+    prisma.post.findFirst({
+      where: { status: 'published', publishedAt: { not: null } },
+      orderBy: { publishedAt: 'asc' },
+      select: { publishedAt: true },
+    }),
+  ])
+  const writingDays = first?.publishedAt
+    ? Math.max(1, Math.ceil((Date.now() - first.publishedAt.getTime()) / 86400000))
+    : 0
+  return {
+    posts,
+    categories,
+    tags,
+    comments,
+    views: agg._sum.views ?? 0,
+    likes: agg._sum.likes ?? 0,
+    writingDays,
+  }
+}
+
 /** 数据看板聚合查询 */
 export async function getDashboardStats() {
   const [postAgg, postTotal, publishedTotal, commentTotal, pendingComments, momentTotal, friendTotal] =

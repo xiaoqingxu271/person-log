@@ -1,9 +1,33 @@
 import type { Metadata } from 'next'
+import { Ma_Shan_Zheng, Dancing_Script, Playfair_Display } from 'next/font/google'
 import { SITE } from '@/lib/site'
 import { getSiteConfig } from '@/lib/site-config'
 import './globals.css'
 import './hljs-dark.css'
 import 'highlight.js/styles/github.css'
+
+// 中文手写体（Hero 问候 / 极光之语）
+const brush = Ma_Shan_Zheng({
+  subsets: ['latin'],
+  weight: '400',
+  preload: false,
+  variable: '--font-brush',
+})
+
+// 英文花体（Explore the Unknown / Keep Learning）
+const script = Dancing_Script({
+  subsets: ['latin'],
+  weight: 'variable',
+  variable: '--font-script',
+})
+
+// 衬线展示体（Logo / 英文引文）
+const display = Playfair_Display({
+  subsets: ['latin'],
+  weight: 'variable',
+  style: ['normal', 'italic'],
+  variable: '--font-display',
+})
 
 export async function generateMetadata(): Promise<Metadata> {
   const cfg = await getSiteConfig()
@@ -20,18 +44,10 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-// 首屏渲染前设置主题，避免暗色模式闪烁（FOUC）
-const themeScript = `(function(){try{var t=localStorage.getItem('personlog_theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;var c=document.documentElement.classList;d?c.add('dark'):c.remove('dark')}catch(e){}})()`
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
-      <body className="bg-stone-50 text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-200">
-        {children}
-      </body>
+    <html lang="zh-CN" className={`dark ${brush.variable} ${script.variable} ${display.variable}`}>
+      <body className="bg-night-950 text-slate-200 antialiased">{children}</body>
     </html>
   )
 }

@@ -16,15 +16,15 @@ function timeLabel(iso: string): string {
 
 function StatusBadge({ status }: { status: CommentView['status'] }) {
   if (status === 'pending')
-    return <span className="rounded bg-amber-100 px-1.5 text-xs text-amber-700 dark:bg-amber-950 dark:text-amber-400">待审</span>
+    return <span className="rounded bg-amber-400/15 px-1.5 text-xs text-amber-300">待审</span>
   if (status === 'hidden')
-    return <span className="rounded bg-stone-200 px-1.5 text-xs text-stone-600 dark:bg-stone-800 dark:text-stone-400">已隐藏</span>
+    return <span className="rounded bg-white/10 px-1.5 text-xs text-slate-400">已隐藏</span>
   return null
 }
 
 function Avatar({ url, name }: { url: string; name: string }) {
   return (
-    <span className="flex h-8 w-8 shrink-0 select-none items-center justify-center overflow-hidden rounded-full bg-stone-200 text-xs font-medium text-stone-600 dark:bg-stone-700 dark:text-stone-300">
+    <span className="glass-chip flex h-8 w-8 shrink-0 select-none items-center justify-center overflow-hidden rounded-full text-xs font-medium text-ice-300">
       {url ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={url} alt={`${name}的头像`} className="h-full w-full" loading="lazy" />
@@ -55,9 +55,7 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
       const saved = JSON.parse(localStorage.getItem('personlog_commenter') ?? '{}')
       // eslint-disable-next-line react-hooks/set-state-in-effect -- 挂载后回填访客信息
       if (typeof saved.name === 'string') setName(saved.name)
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (typeof saved.email === 'string') setEmail(saved.email)
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (typeof saved.url === 'string') setUrl(saved.url)
     } catch {
       /* 忽略损坏的本地数据 */
@@ -109,7 +107,7 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
         href={comment.authorUrl}
         target="_blank"
         rel="noreferrer nofollow"
-        className="font-medium hover:underline"
+        className="font-medium text-slate-100 transition-colors hover:text-ice-300 hover:underline"
       >
         {comment.authorName}
       </a>
@@ -120,28 +118,26 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
       <li key={comment.id} className={isReply ? 'pl-10' : ''}>
         <div
           className={
-            'rounded-lg border p-3 ' +
-            (comment.status === 'hidden'
-              ? 'border-stone-100 opacity-60 dark:border-stone-900'
-              : 'border-stone-100 dark:border-stone-800')
+            'glass-chip rounded-xl p-3.5 ' +
+            (comment.status === 'hidden' ? 'opacity-60' : '')
           }
         >
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2 text-sm text-slate-200">
             <Avatar url={comment.avatarUrl} name={comment.authorName} />
             {nameEl}
             {comment.isOwner && (
-              <span className="rounded bg-blue-600 px-1.5 py-0.5 text-xs text-white">博主</span>
+              <span className="rounded bg-ice-500/20 px-1.5 py-0.5 text-xs text-ice-300">博主</span>
             )}
             <StatusBadge status={comment.status} />
             <time
               dateTime={comment.createdAtISO}
               suppressHydrationWarning
-              className="text-xs text-stone-400"
+              className="text-xs text-slate-500"
             >
               {timeLabel(comment.createdAtISO)}
             </time>
           </div>
-          <p className="mt-2 whitespace-pre-line break-words text-sm leading-relaxed">
+          <p className="mt-2 whitespace-pre-line break-words text-sm leading-relaxed text-slate-300">
             {comment.content}
           </p>
           {!isReply && (
@@ -152,7 +148,7 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
                 setMessage(null)
                 formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
               }}
-              className="mt-2 text-xs text-stone-500 transition-colors hover:text-stone-900 dark:hover:text-stone-100"
+              className="mt-2 text-xs text-slate-500 transition-colors hover:text-ice-300"
             >
               回复
             </button>
@@ -167,17 +163,17 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
     )
   }
 
-  const input =
-    'w-full rounded border border-stone-300 bg-white px-3 py-2 text-sm focus:border-stone-900 focus:outline-none dark:border-stone-700 dark:bg-stone-900'
+  const input = 'glass-input'
 
   return (
-    <section className="mt-12 border-t border-stone-100 pt-8 dark:border-stone-800">
-      <h2 className="text-xl font-bold">
-        评论 <span className="text-sm font-normal text-stone-400">{total} 条</span>
+    <section className="mt-12 border-t border-white/10 pt-8">
+      <h2 className="flex items-center gap-2.5 text-xl font-bold text-white">
+        <span aria-hidden className="h-5 w-1 rounded-full bg-gradient-to-b from-aurora-400 to-ice-500" />
+        评论 <span className="text-sm font-normal text-slate-500">{total} 条</span>
       </h2>
 
       {comments.length === 0 ? (
-        <p className="mt-4 text-sm text-stone-500 dark:text-stone-400">
+        <p className="mt-4 text-sm text-slate-400">
           还没有评论，来说两句吧～
         </p>
       ) : (
@@ -185,13 +181,13 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
       )}
 
       <div ref={formRef} className="mt-8">
-        <h3 className="text-sm font-semibold text-stone-700 dark:text-stone-200">
+        <h3 className="text-sm font-semibold text-slate-200">
           {replyTo ? `回复 @${replyTo.authorName}` : '发表评论'}
           {replyTo && (
             <button
               type="button"
               onClick={() => setReplyTo(null)}
-              className="ml-2 text-xs font-normal text-stone-400 hover:text-stone-700 dark:hover:text-stone-200"
+              className="ml-2 text-xs font-normal text-slate-500 hover:text-ice-300"
             >
               取消回复
             </button>
@@ -249,24 +245,23 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
             type="button"
             onClick={submit}
             disabled={submitting}
-            className="rounded bg-stone-900 px-4 py-2 text-sm text-white transition-colors hover:bg-stone-700 disabled:opacity-50 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-300"
+            className="aurora-btn rounded-full px-5 py-2 text-sm font-medium disabled:opacity-50"
           >
             {submitting ? '提交中…' : replyTo ? '回复' : '发表评论'}
           </button>
           {message && (
             <span
+              role="status"
               className={
                 'text-sm ' +
-                (message.type === 'ok'
-                  ? 'text-green-700 dark:text-green-500'
-                  : 'text-red-600')
+                (message.type === 'ok' ? 'text-aurora-300' : 'text-flare-300')
               }
             >
               {message.text}
             </span>
           )}
           {!loggedIn && !message && (
-            <span className="text-xs text-stone-400">评论需博主审核后展示</span>
+            <span className="text-xs text-slate-500">评论需博主审核后展示</span>
           )}
         </div>
       </div>

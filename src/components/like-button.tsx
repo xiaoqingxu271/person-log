@@ -1,12 +1,14 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { HeartIcon } from '@/components/icons'
 
 const LIKED_KEY = 'personlog_liked_posts'
+const LIKED_MOMENT_KEY = 'personlog_liked_moments'
 
-function getLikedIds(): number[] {
+function getLikedIds(key: string): number[] {
   try {
-    const raw = localStorage.getItem(LIKED_KEY)
+    const raw = localStorage.getItem(key)
     const arr = raw ? JSON.parse(raw) : []
     return Array.isArray(arr) ? arr : []
   } catch {
@@ -14,8 +16,20 @@ function getLikedIds(): number[] {
   }
 }
 
-/** 点赞按钮：同一浏览器对同一篇文章只计一次（localStorage 防重复） */
-export function LikeButton({ postId, initialLikes }: { postId: number; initialLikes: number }) {
+/** 点赞按钮：同一浏览器对同一目标只计一次（localStorage 防重复） */
+export function LikeButton({
+  postId,
+  initialLikes,
+  variant = 'chip',
+  kind = 'post',
+}: {
+  postId: number
+  initialLikes: number
+  variant?: 'chip' | 'pill'
+  kind?: 'post' | 'moment'
+}) {
+  const storageKey = kind === 'moment' ? LIKED_MOMENT_KEY : LIKED_KEY
+  const apiPath = kind === 'moment' ? `/api/moments/${postId}/like` : `/api/posts/${postId}/like`
   const [likes, setLikes] = useState(initialLikes)
   const [liked, setLiked] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -23,24 +37,26 @@ export function LikeButton({ postId, initialLikes }: { postId: number; initialLi
   useEffect(() => {
     // 挂载后读取 localStorage 的点赞记录，避免 SSR/CSR 不一致
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLiked(getLikedIds().includes(postId))
-  }, [postId])
+    setLiked(getLikedIds(storageKey).includes(postId))
+  }, [postId, storageKey])
 
   async function like() {
     if (liked || busy) return
     setBusy(true)
     try {
-      const res = await fetch(`/api/posts/${postId}/like`, { method: 'POST' })
+      const res = await fetch(apiPath, { method: 'POST' })
       if (res.ok) {
         const data = await res.json()
         setLikes(data.likes)
         setLiked(true)
-        localStorage.setItem(LIKED_KEY, JSON.stringify([...getLikedIds(), postId]))
+        localStorage.setItem(storageKey, JSON.stringify([...getLikedIds(storageKey), postId]))
       }
     } finally {
       setBusy(false)
     }
   }
+
+  const label = liked ? `${likes} 个赞` : variant === 'pill' ? '点赞' : likes > 0 ? `${likes} 个赞` : '点赞'
 
   return (
     <button
@@ -49,16 +65,16 @@ export function LikeButton({ postId, initialLikes }: { postId: number; initialLi
       disabled={liked || busy}
       title={liked ? '已点赞' : '点赞支持'}
       className={
-        'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors ' +
-        (liked
-          ? 'border-red-200 bg-red-50 text-red-600 dark:border-red-900 dark:bg-red-950 dark:text-red-400'
-          : 'border-stone-300 text-stone-600 hover:border-red-300 hover:text-red-600 dark:border-stone-700 dark:text-stone-300 dark:hover:border-red-900 dark:hover:text-red-400')
+        variant === 'pill'
+          ? 'aurora-btn inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium disabled:opacity-80'
+          : 'inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm transition-all ' +
+            (liked
+              ? 'border-flare-400/40 bg-flare-400/15 text-flare-300 shadow-[0_0_18px_rgba(232,121,249,0.25)]'
+              : 'glass-chip text-slate-300 hover:border-flare-400/40 hover:text-flare-300')
       }
     >
-      <svg viewBox="0 0 24 24" className="h-4 w-4" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" />
-      </svg>
-      {likes > 0 ? `${likes} 个赞` : '点赞'}
+      <HeartIcon className="h-4 w-4" filled={liked || variant === 'pill'} />
+      {label}
     </button>
   )
 }

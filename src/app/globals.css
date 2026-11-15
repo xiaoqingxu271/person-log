@@ -1,30 +1,283 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* 手动暗色模式：html.dark 时启用 dark: 变体（html 上的 class 由 layout 中的引导脚本设置） */
+/* 全站固定暗色（极光夜景主题），dark: 变体保留给后台沿用 */
 @custom-variant dark (&:where(.dark, .dark *));
 
-html {
-  scroll-behavior: smooth;
-}
+/* ---------- 极光色板 ---------- */
+@theme {
+  /* 深夜蓝：背景 / 表面 */
+  --color-night-950: #050816;
+  --color-night-900: #0a0f24;
+  --color-night-800: #111735;
+  --color-night-700: #1a2148;
+  --color-night-600: #252d5c;
 
-body {
-  font-family:
+  /* 极光绿：主强调 / 成功 */
+  --color-aurora-200: #a7f3d0;
+  --color-aurora-300: #6ee7b7;
+  --color-aurora-400: #34d399;
+  --color-aurora-500: #10b981;
+  --color-aurora-600: #059669;
+
+  /* 冰蓝：信息 / 链接 */
+  --color-ice-200: #bae6fd;
+  --color-ice-300: #7dd3fc;
+  --color-ice-400: #38bdf8;
+  --color-ice-500: #0ea5e9;
+
+  /* 星云紫：次强调 */
+  --color-nebula-200: #ddd6fe;
+  --color-nebula-300: #c4b5fd;
+  --color-nebula-400: #a78bfa;
+  --color-nebula-500: #8b5cf6;
+
+  /* 耀斑粉：点缀 / 警示偏柔 */
+  --color-flare-200: #f5d0fe;
+  --color-flare-300: #f0abfc;
+  --color-flare-400: #e879f9;
+  --color-flare-500: #d946ef;
+
+  --font-sans:
     -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
     "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
 }
 
+html {
+  scroll-behavior: smooth;
+  /* 自定义滚动条（Firefox） */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.55) rgba(8, 12, 30, 0.85);
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-night-950);
+}
+
+/* 自定义滚动条（WebKit）：极光渐变滑块 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(8, 12, 30, 0.85);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #059669, #0ea5e9 55%, #8b5cf6);
+  border-radius: 8px;
+  border: 2px solid rgba(8, 12, 30, 0.9);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #34d399, #38bdf8 55%, #a78bfa);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 ::selection {
-  background-color: var(--color-orange-200);
-  color: var(--color-orange-950);
+  background-color: rgba(139, 92, 246, 0.45);
+  color: #f0f9ff;
 }
 
-.dark ::selection {
-  background-color: var(--color-orange-800);
-  color: var(--color-orange-100);
+/* ---------- 字体工具 ---------- */
+@layer components {
+.font-brush {
+  font-family: var(--font-brush), "STXingkai", "华文行楷", "KaiTi", "楷体", cursive;
+}
+.font-script {
+  font-family: var(--font-script), "Segoe Script", "Brush Script MT", cursive;
+}
+.font-display {
+  font-family: var(--font-display), Georgia, "Times New Roman", serif;
 }
 
-/* 入场动画：列表/卡片淡入上移 */
+/* ---------- 玻璃拟态 ---------- */
+.glass-panel {
+  background: linear-gradient(150deg, rgba(23, 30, 62, 0.72), rgba(9, 13, 32, 0.62));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    0 10px 36px rgba(2, 6, 23, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+.glass-bar {
+  background: linear-gradient(150deg, rgba(20, 27, 58, 0.82), rgba(8, 12, 30, 0.78));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow:
+    0 12px 40px rgba(2, 6, 23, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.09);
+}
+
+.glass-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-input {
+  width: 100%;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.625rem 0.9rem;
+  font-size: 0.875rem;
+  color: var(--color-slate-200);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.glass-input::placeholder {
+  color: var(--color-slate-500);
+}
+.glass-input:focus {
+  outline: none;
+  border-color: rgba(56, 189, 248, 0.55);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18);
+}
+
+/* 极光渐变文字 */
+.aurora-text {
+  background: linear-gradient(92deg, #34d399, #38bdf8 38%, #a78bfa 72%, #e879f9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 极光渐变按钮 */
+.aurora-btn {
+  background: linear-gradient(92deg, #0ea5e9, #8b5cf6 60%, #d946ef);
+  color: #fff;
+  box-shadow: 0 4px 18px rgba(99, 102, 241, 0.4);
+  transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.aurora-btn:hover:not(:disabled) {
+  filter: brightness(1.12);
+  box-shadow: 0 6px 24px rgba(139, 92, 246, 0.55);
+}
+.aurora-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.aurora-btn:disabled {
+  opacity: 0.55;
+}
+
+.text-glow {
+  text-shadow: 0 0 24px rgba(125, 211, 252, 0.35), 0 2px 10px rgba(2, 6, 23, 0.6);
+}
+
+/* 衬线标题（中文宋体回退，配合 Playfair 西文） */
+.font-serif-cn {
+  font-family: var(--font-display), "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif;
+}
+
+/* 标签云胶囊：字号由热度内联控制 */
+.cloud-pill {
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(140deg, rgba(56, 189, 248, 0.14), rgba(139, 92, 246, 0.16));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--color-slate-200);
+  padding: 0.4em 1.1em;
+  line-height: 1.4;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.cloud-pill:hover {
+  transform: translateY(-2px);
+  border-color: rgba(125, 211, 252, 0.5);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(14, 165, 233, 0.25);
+}
+.cloud-pill-active {
+  border-color: rgba(167, 139, 250, 0.7);
+  background: linear-gradient(140deg, rgba(52, 211, 153, 0.22), rgba(139, 92, 246, 0.3));
+  color: #fff;
+  box-shadow: 0 0 22px rgba(139, 92, 246, 0.45);
+}
+}
+
+/* 霜白→冰蓝→星云紫 渐变标题文字 */
+.text-frost {
+  background: linear-gradient(120deg, #f0f9ff 10%, #bae6fd 45%, #c4b5fd 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 紫色辉光描边（友链焦点卡 / 标签选中）；注册为 utility 以支持 hover: 变体 */
+@utility glow-ring {
+  border-color: rgba(167, 139, 250, 0.65);
+  box-shadow:
+    0 0 0 1px rgba(167, 139, 250, 0.35),
+    0 0 26px rgba(139, 92, 246, 0.4),
+    inset 0 0 18px rgba(139, 92, 246, 0.12);
+}
+
+/* ---------- 固定背景层 ---------- */
+.aurora-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.aurora-scene-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 0%, transparent 40%, rgba(5, 8, 22, 0.5) 100%),
+    linear-gradient(180deg, rgba(5, 8, 22, 0.6) 0%, rgba(5, 8, 22, 0.32) 32%, rgba(5, 8, 22, 0.42) 68%, rgba(5, 8, 22, 0.74) 100%);
+}
+.aurora-glow {
+  position: absolute;
+  width: 62vw;
+  height: 62vw;
+  border-radius: 9999px;
+  filter: blur(70px);
+  opacity: 0.5;
+  will-change: transform;
+}
+.aurora-glow-a {
+  top: -22vw;
+  left: -14vw;
+  background: radial-gradient(closest-side, rgba(16, 185, 129, 0.22), transparent 72%);
+  animation: aurora-drift-a 32s ease-in-out infinite alternate;
+}
+.aurora-glow-b {
+  top: -10vw;
+  right: -18vw;
+  background: radial-gradient(closest-side, rgba(139, 92, 246, 0.22), transparent 72%);
+  animation: aurora-drift-b 38s ease-in-out infinite alternate;
+}
+.aurora-stars {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(255, 255, 255, 0.9) 50%, transparent 51%),
+    radial-gradient(1px 1px at 34% 8%, rgba(186, 230, 253, 0.8) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 58% 14%, rgba(255, 255, 255, 0.75) 50%, transparent 51%),
+    radial-gradient(1px 1px at 76% 6%, rgba(196, 181, 253, 0.85) 50%, transparent 51%),
+    radial-gradient(1px 1px at 90% 22%, rgba(255, 255, 255, 0.7) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 22% 34%, rgba(167, 243, 208, 0.6) 50%, transparent 51%),
+    radial-gradient(1px 1px at 66% 30%, rgba(255, 255, 255, 0.6) 50%, transparent 51%),
+    radial-gradient(1px 1px at 44% 24%, rgba(240, 171, 252, 0.55) 50%, transparent 51%);
+  background-size: 560px 560px;
+  animation: stars-twinkle 7s ease-in-out infinite;
+}
+.aurora-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- 动画 ---------- */
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -35,16 +288,70 @@ body {
     transform: none;
   }
 }
-
 .animate-fade-up {
   animation: fade-up 0.55s ease-out both;
+}
+
+@keyframes aurora-drift-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(9vw, 6vh, 0) scale(1.15); }
+}
+@keyframes aurora-drift-b {
+  from { transform: translate3d(0, 0, 0) scale(1.1); }
+  to { transform: translate3d(-8vw, 9vh, 0) scale(0.95); }
+}
+@keyframes stars-twinkle {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 0.35; }
+}
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+@keyframes wave {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(18deg); }
+  75% { transform: rotate(-12deg); }
+}
+.animate-float {
+  animation: float-y 6s ease-in-out infinite;
+}
+@keyframes ping-dot {
+  0% { transform: scale(1); opacity: 0.8; }
+  80%, 100% { transform: scale(2.4); opacity: 0; }
+}
+.animate-ping-dot {
+  animation: ping-dot 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+@keyframes chart-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes chart-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.skeleton-shimmer {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-  .animate-fade-up {
+  .animate-fade-up,
+  .aurora-glow-a,
+  .aurora-glow-b,
+  .aurora-stars,
+  .animate-float,
+  .animate-ping-dot,
+  .skeleton-shimmer {
     animation: none;
   }
 }
@@ -54,81 +361,104 @@ pre {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
 }
 
-/* ---------- 正文排版精修 ---------- */
+/* ---------- 正文排版（极光暗色） ---------- */
 
-/* 锚点跳转留出 sticky 页头的高度 */
 .prose :where([id]):not(:where([class~="not-prose"] *)) {
-  scroll-margin-top: 5.5rem;
+  scroll-margin-top: 6.5rem;
 }
 
 .prose :where(a):not(:where([class~="not-prose"] *)) {
-  color: var(--color-orange-600);
+  color: var(--color-ice-300);
   font-weight: 500;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
   transition: color 0.15s ease;
 }
-
 .prose :where(a):not(:where([class~="not-prose"] *)):hover {
-  color: var(--color-orange-500);
-}
-
-.dark .prose :where(a):not(:where([class~="not-prose"] *)) {
-  color: var(--color-orange-400);
-}
-
-.dark .prose :where(a):not(:where([class~="not-prose"] *)):hover {
-  color: var(--color-orange-300);
+  color: var(--color-aurora-300);
 }
 
 .prose :where(blockquote):not(:where([class~="not-prose"] *)) {
-  border-inline-start-color: var(--color-orange-300);
+  position: relative;
+  border-inline-start: 3px solid var(--color-ice-400);
+  border-radius: 0.9rem;
+  background: linear-gradient(150deg, rgba(23, 30, 62, 0.66), rgba(9, 13, 32, 0.55));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  padding: 1.5rem 2.8rem;
   font-style: normal;
+  font-weight: 400;
+  color: var(--color-slate-200);
+  text-align: center;
+  quotes: none;
 }
-
-.dark .prose :where(blockquote):not(:where([class~="not-prose"] *)) {
-  border-inline-start-color: var(--color-orange-700);
+.prose :where(blockquote):not(:where([class~="not-prose"] *))::before {
+  content: "\201C";
+  position: absolute;
+  left: 0.9rem;
+  top: 0.5rem;
+  font-family: Georgia, serif;
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--color-ice-400);
+}
+.prose :where(blockquote):not(:where([class~="not-prose"] *))::after {
+  content: "\201D";
+  position: absolute;
+  right: 0.9rem;
+  bottom: 0.1rem;
+  font-family: Georgia, serif;
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--color-nebula-400);
+}
+.prose :where(blockquote p):not(:where([class~="not-prose"] *)) {
+  margin: 0;
+}
+.prose :where(blockquote p):not(:where([class~="not-prose"] *))::before,
+.prose :where(blockquote p):not(:where([class~="not-prose"] *))::after {
+  content: none;
 }
 
 .prose :where(code):not(:where(pre code):not(:where([class~="not-prose"] *))) {
   border-radius: 0.375rem;
-  background-color: var(--color-stone-100);
+  background-color: rgba(139, 92, 246, 0.16);
+  color: var(--color-nebula-200);
   padding: 0.15em 0.4em;
   font-weight: normal;
 }
 
-.dark .prose :where(code):not(:where(pre code):not(:where([class~="not-prose"] *))) {
-  background-color: var(--color-stone-800);
-}
-
 .prose :where(h2, h3, h4):not(:where([class~="not-prose"] *)) {
   letter-spacing: -0.02em;
+  color: var(--color-slate-100);
 }
 
 .prose :where(hr):not(:where([class~="not-prose"] *)) {
-  border-color: var(--color-stone-200);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-.dark .prose :where(hr):not(:where([class~="not-prose"] *)) {
-  border-color: var(--color-stone-800);
+.prose :where(strong):not(:where([class~="not-prose"] *)) {
+  color: var(--color-slate-100);
 }
 
-/* ---------- 代码高亮：浅色用 github 主题，深色用 hljs-dark.css ---------- */
+.prose :where(table):not(:where([class~="not-prose"] *)) {
+  font-size: 0.875em;
+}
+.prose :where(thead th):not(:where([class~="not-prose"] *)) {
+  color: var(--color-slate-200);
+  border-bottom-color: rgba(255, 255, 255, 0.16);
+}
+.prose :where(tbody td):not(:where([class~="not-prose"] *)) {
+  border-bottom-color: rgba(255, 255, 255, 0.07);
+}
 
+/* ---------- 代码高亮：深色 github-dark（hljs-dark.css） ---------- */
 .prose pre {
-  background-color: #f6f8fa;
-  color: #24292e;
-}
-
-.prose pre .hljs {
-  background: transparent;
-}
-
-.dark .prose pre {
   background-color: #0d1117;
   color: #c9d1d9;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
-
-.dark .prose pre .hljs {
+.prose pre .hljs {
   background: transparent;
 }

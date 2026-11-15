@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-/** 顶部阅读进度条（文章详情页） */
+/** 文章内联阅读进度条（作者行下方的渐变细线 + 光点） */
 export function ReadingProgress() {
   const [progress, setProgress] = useState(0)
 
@@ -22,10 +22,13 @@ export function ReadingProgress() {
   }, [])
 
   return (
-    <div
-      aria-hidden
-      className="fixed inset-x-0 top-0 z-50 h-0.5 origin-left bg-orange-500 transition-transform duration-150"
-      style={{ transform: `scaleX(${progress / 100})` }}
-    />
+    <div aria-hidden className="relative mt-5 h-[3px] w-full rounded-full bg-white/8">
+      <div
+        className="relative h-full rounded-full bg-gradient-to-r from-aurora-400 via-ice-400 to-nebula-400 transition-[width] duration-150"
+        style={{ width: `${Math.max(progress, 2)}%` }}
+      >
+        <span className="absolute -right-1 -top-[3px] h-2 w-2 rounded-full bg-ice-300 shadow-[0_0_10px_rgba(125,211,252,0.9)]" />
+      </div>
+    </div>
   )
 }

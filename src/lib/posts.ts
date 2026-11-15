@@ -34,14 +34,23 @@ export async function listPostsByTag(slug: string, page = 1, perPage = POSTS_PER
   return listByWhere({ ...publishedWhere, tags: { some: { tag: { slug } } } }, page, perPage)
 }
 
-/** 站内搜索：按空格拆词，每个词在标题/摘要/正文中匹配（AND 语义） */
-export async function searchPosts(query: string, page = 1, perPage = POSTS_PER_PAGE): Promise<ListResult> {
+/** 站内搜索：按空格拆词，每个词在标题/摘要/正文中匹配（AND 语义）；可按分类过滤 */
+export async function searchPosts(
+  query: string,
+  page = 1,
+  perPage = POSTS_PER_PAGE,
+  categorySlug?: string,
+): Promise<ListResult> {
   const words = query.trim().split(/\s+/).filter(Boolean).slice(0, 5)
-  if (words.length === 0) return { posts: [], total: 0, totalPages: 1 }
+  const categoryWhere: Prisma.PostWhereInput = categorySlug ? { category: { slug: categorySlug } } : {}
+  if (words.length === 0) {
+    return listByWhere({ ...publishedWhere, ...categoryWhere }, page, perPage)
+  }
   // 转义 LIKE 通配符，避免用户输入的 % 和 _ 影响匹配语义
   const like = (word: string) => word.replace(/[\\%_]/g, '\\$&')
   const where: Prisma.PostWhereInput = {
     ...publishedWhere,
+    ...categoryWhere,
     AND: words.map((word) => ({
       OR: [
         { title: { contains: like(word) } },
@@ -75,7 +84,81 @@ export async function listArchivePosts() {
   return prisma.post.findMany({
     where: publishedWhere,
     orderBy: { publishedAt: 'desc' },
-    select: { title: true, slug: true, publishedAt: true },
+    select: {
+      title: true,
+      slug: true,
+      publishedAt: true,
+      summary: true,
+      coverUrl: true,
+      likes: true,
+      tags: { select: { tag: { select: { name: true, slug: true } } } },
+    },
+  })
+}
+
+/** 相邻文章：上一篇（更早）/ 下一篇（更新） */
+export async function getAdjacentPosts(postId: number, publishedAt: Date | null) {
+  if (!publishedAt) return { prev: null, next: null }
+  const select = { title: true, slug: true } as const
+  const [prev, next] = await Promise.all([
+    prisma.post.findFirst({
+      where: { ...publishedWhere, id: { not: postId }, publishedAt: { lt: publishedAt } },
+      orderBy: { publishedAt: 'desc' },
+      select,
+    }),
+    prisma.post.findFirst({
+      where: { ...publishedWhere, id: { not: postId }, publishedAt: { gt: publishedAt } },
+      orderBy: { publishedAt: 'asc' },
+      select,
+    }),
+  ])
+  return { prev, next }
+}
+
+/** 分类 + 文章数 + 该分类下高频标签（取前 3） */
+export async function listCategoriesWithMeta() {
+  const categories = await prisma.category.findMany({
+    orderBy: { id: 'asc' },
+    include: {
+      _count: { select: { posts: { where: publishedWhere } } },
+      posts: {
+        where: publishedWhere,
+        select: { tags: { select: { tag: { select: { name: true, slug: true } } } } },
+      },
+    },
+  })
+  return categories.map((cat) => {
+    const tally = new Map<string, { name: string; slug: string; count: number }>()
+    for (const post of cat.posts) {
+      for (const { tag } of post.tags) {
+        const item = tally.get(tag.slug) ?? { ...tag, count: 0 }
+        item.count += 1
+        tally.set(tag.slug, item)
+      }
+    }
+    const topTags = [...tally.values()].sort((a, b) => b.count - a.count).slice(0, 3)
+    const { posts: _posts, ...rest } = cat
+    return { ...rest, topTags }
+  })
+}
+
+/** 近期文章（侧栏用） */
+export async function getRecentPosts(take = 4) {
+  return prisma.post.findMany({
+    where: publishedWhere,
+    orderBy: { publishedAt: 'desc' },
+    select: { title: true, slug: true, publishedAt: true, likes: true },
+    take,
+  })
+}
+
+/** 推荐阅读：按浏览量排序 */
+export async function getRecommendedPosts(take = 4) {
+  return prisma.post.findMany({
+    where: publishedWhere,
+    orderBy: { views: 'desc' },
+    select: { title: true, slug: true, publishedAt: true, coverUrl: true, views: true },
+    take,
   })
 }
 
@@ -125,17 +208,26 @@ export async function incrementPostViews(id: number) {
   await recordDailyPv()
 }
 
-/** F-11 相关文章：按共同标签推荐（不含自身） */
+/** F-11 相关文章：按共同标签推荐（不含自身）；无共同标签时回退到最新文章 */
 export async function listRelatedPosts(postId: number, tagSlugs: string[], take = 3) {
-  if (tagSlugs.length === 0) return []
+  const select = { title: true, slug: true, publishedAt: true, views: true, coverUrl: true } as const
+  if (tagSlugs.length > 0) {
+    const related = await prisma.post.findMany({
+      where: {
+        status: 'published',
+        id: { not: postId },
+        tags: { some: { tag: { slug: { in: tagSlugs } } } },
+      },
+      orderBy: [{ isPinned: 'desc' }, { publishedAt: 'desc' }],
+      select,
+      take,
+    })
+    if (related.length > 0) return related
+  }
   return prisma.post.findMany({
-    where: {
-      status: 'published',
-      id: { not: postId },
-      tags: { some: { tag: { slug: { in: tagSlugs } } } },
-    },
-    orderBy: [{ isPinned: 'desc' }, { publishedAt: 'desc' }],
-    select: { title: true, slug: true, publishedAt: true, views: true },
+    where: { status: 'published', id: { not: postId } },
+    orderBy: { publishedAt: 'desc' },
+    select,
     take,
   })
 }

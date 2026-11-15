@@ -130,6 +130,7 @@ model Moment {
   id        Int      @id @default(autoincrement())
   content   String   @db.Text
   imageUrl  String   @default("") @db.VarChar(500) @map("image_url")
+  likes     Int      @default(0)
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("moment")
@@ -140,4 +141,12 @@ model DailyStat {
   pv   Int    @default(0)
 
   @@map("daily_stat")
+}
+
+model Subscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique @db.VarChar(200)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("subscriber")
 }

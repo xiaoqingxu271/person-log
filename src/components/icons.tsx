@@ -194,3 +194,55 @@ export function PenLineIcon({ className }: IconProps) {
     </svg>
   )
 }
+
+export function BellIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+    </svg>
+  )
+}
+
+export function MenuIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  )
+}
+
+export function XIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
+  )
+}
+
+export function CloudSnowIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M20 15.5A4.5 4.5 0 0 0 17.5 7h-1.1A7 7 0 1 0 5 15.2" />
+      <path d="M8 19h.01M12 21h.01M16 19h.01M8 15h.01M12 17h.01M16 15h.01" />
+    </svg>
+  )
+}
+
+export function UsersIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  )
+}
+
+export function SparkleIcon({ className }: IconProps) {
+  return (
+    <svg className={className ?? 'h-4 w-4'} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M12 2c.6 4.8 3.2 7.4 8 8-4.8.6-7.4 3.2-8 8-.6-4.8-3.2-7.4-8-8 4.8-.6 7.4-3.2 8-8Z" />
+    </svg>
+  )
+}

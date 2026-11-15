@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import type { TocItem } from '@/lib/toc'
+import { ChevronDownIcon } from '@/components/icons'
 
+/** 编号目录：01/02… + 右侧箭头，当前章节高亮（极光玻璃卡） */
 export function Toc({ items }: { items: TocItem[] }) {
   const [activeId, setActiveId] = useState('')
 
@@ -33,23 +35,32 @@ export function Toc({ items }: { items: TocItem[] }) {
   return (
     <nav
       aria-label="文章目录"
-      className="sticky top-8 max-h-[calc(100vh-5rem)] overflow-y-auto text-sm"
+      className="glass-panel sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl p-4 text-sm"
     >
-      <div className="mb-2 font-semibold text-stone-900 dark:text-stone-100">目录</div>
-      <ul className="space-y-1 border-l border-stone-200 dark:border-stone-800">
-        {items.map((item) => (
+      <div className="mb-3 flex items-center gap-2 px-1 font-semibold text-white">
+        <svg viewBox="0 0 24 24" className="h-4 w-4 text-ice-300" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2ZM22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8Z" />
+        </svg>
+        目录 / TOC
+      </div>
+      <ul className="space-y-1">
+        {items.map((item, index) => (
           <li key={item.id}>
             <a
               href={`#${item.id}`}
               className={
-                '-ml-px block border-l py-0.5 transition-colors ' +
-                (item.level === 3 ? 'pl-5 ' : 'pl-3 ') +
+                'group flex items-center gap-2.5 rounded-lg py-2 pl-3 pr-2 transition-colors ' +
+                (item.level === 3 ? 'ml-4 ' : '') +
                 (activeId === item.id
-                  ? 'border-stone-900 font-medium text-stone-900 dark:border-stone-100 dark:text-white'
-                  : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-300')
+                  ? 'border-l-2 border-aurora-400 bg-white/8 font-medium text-aurora-300'
+                  : 'border-l-2 border-transparent text-slate-400 hover:bg-white/5 hover:text-ice-300')
               }
             >
-              {item.text}
+              <span className="font-mono text-xs text-slate-500">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <span className="min-w-0 flex-1 truncate">{item.text}</span>
+              <ChevronDownIcon className="h-3.5 w-3.5 -rotate-90 text-slate-600 transition-colors group-hover:text-ice-300" />
             </a>
           </li>
         ))}

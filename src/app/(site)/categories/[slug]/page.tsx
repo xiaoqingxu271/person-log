@@ -1,10 +1,14 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getCategoryBySlug, listPostsByCategory } from '@/lib/posts'
-import { PostCard } from '@/components/post-card'
+import {
+  getCategoryBySlug,
+  listPostsByCategory,
+  listCategoriesWithMeta,
+} from '@/lib/posts'
+import { PostRowCard } from '@/components/post-row-card'
 import { Pagination } from '@/components/pagination'
-import { PageCard, PageHeader } from '@/components/page-card'
-import { FolderIcon } from '@/components/icons'
+import { CategoryIcon, metaFor } from '@/components/category-card'
+import { Flourish } from '@/components/flourish'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,42 +30,59 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   if (!category) notFound()
 
   const current = Math.max(1, Number(page) || 1)
-  const { posts, totalPages } = await listPostsByCategory(category.slug, current)
+  const [{ posts, totalPages }, all] = await Promise.all([
+    listPostsByCategory(category.slug, current),
+    listCategoriesWithMeta(),
+  ])
+  const index = Math.max(0, all.findIndex((c) => c.id === category.id))
+  const meta = metaFor(index, category.name)
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 py-10">
-      <PageCard>
-        <PageHeader
-          eyebrow="Category"
-          title={
-            <span className="inline-flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-orange-500 dark:bg-orange-950 dark:text-orange-400">
-                <FolderIcon className="h-5 w-5" />
-              </span>
+    <div className="mx-auto w-full max-w-4xl px-3 py-8 sm:px-4">
+      <header
+        className="glass-panel animate-fade-up rounded-3xl p-6 sm:p-8"
+        style={{ background: `linear-gradient(150deg, ${meta.tint}, rgba(9,13,32,0.66))` }}
+      >
+        <div className="flex items-center gap-4">
+          <span
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-white shadow-[0_6px_18px_rgba(2,6,23,0.4)]"
+            style={{ background: `linear-gradient(135deg, ${meta.hue[0]}, ${meta.hue[1]})` }}
+          >
+            <CategoryIcon icon={meta.icon} className="h-6 w-6" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h1 className="font-serif-cn text-glow truncate text-2xl font-bold text-white sm:text-3xl">
               {category.name}
-            </span>
-          }
-          description={category.description || `该分类下共 ${posts.length} 篇文章`}
-        />
+            </h1>
+            <p className="mt-1 text-xs tracking-wider text-slate-400">{meta.en}</p>
+          </div>
+          <p className="shrink-0 text-sm text-slate-300">
+            <span className="text-lg font-bold text-white">{all[index]?._count.posts ?? posts.length}</span>
+            <span className="ml-1 text-xs text-slate-500">篇</span>
+          </p>
+        </div>
+        {category.description && (
+          <p className="mt-4 text-sm leading-relaxed text-slate-300">{category.description}</p>
+        )}
+      </header>
+
+      <div className="mt-6">
         {posts.length === 0 ? (
-          <p className="text-stone-500 dark:text-stone-400">该分类下还没有文章。</p>
+          <div className="glass-panel rounded-2xl py-16 text-center text-sm text-slate-400">
+            该分类下还没有文章。
+          </div>
         ) : (
-          <div className="divide-y divide-stone-100 dark:divide-stone-800">
+          <div className="space-y-5">
             {posts.map((post) => (
-              <PostCard
+              <PostRowCard
                 key={post.id}
                 title={post.title}
                 slug={post.slug}
                 summary={post.summary}
                 coverUrl={post.coverUrl}
                 publishedAt={post.publishedAt}
-                isPinned={post.isPinned}
-                categoryName={post.category?.name}
-                categorySlug={post.category?.slug}
                 tags={post.tags.map((t) => ({ name: t.tag.name, slug: t.tag.slug }))}
                 views={post.views}
-                likes={post.likes}
-                commentCount={post._count.comments}
               />
             ))}
           </div>
@@ -71,7 +92,13 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           totalPages={totalPages}
           basePath={`/categories/${encodeURIComponent(category.slug)}`}
         />
-      </PageCard>
+      </div>
+
+      <div className="mt-10 flex items-center justify-center gap-4">
+        <Flourish className="h-4 w-24" />
+        <p className="text-xs tracking-wider text-slate-500">思想有书架，生活有索引</p>
+        <Flourish className="h-4 w-24" flip />
+      </div>
     </div>
   )
 }
