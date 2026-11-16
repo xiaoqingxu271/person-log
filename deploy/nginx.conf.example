@@ -1,0 +1,42 @@
+# =====================================================================
+# Nginx 反向代理样例
+# 用法：复制为 /etc/nginx/conf.d/person-log.conf，替换域名与证书路径，
+#      然后 nginx -t && systemctl reload nginx
+# 证书可用 certbot 申请：certbot --nginx -d example.com
+# =====================================================================
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name example.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    # 音频上传上限 30MB，留出表单余量
+    client_max_body_size 40m;
+
+    # 压缩文本资源（Next 已为 /_next/static 设置长缓存，无需重复配置）
+    gzip on;
+    gzip_types text/css application/javascript application/json application/xml image/svg+xml;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # 群发邮件等慢请求留足时间
+        proxy_read_timeout 120s;
+    }
+}

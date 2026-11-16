@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "db:push": "prisma db push",
-    "db:seed": "node prisma/seed.mjs"
+    "db:seed": "node prisma/seed.mjs",
+    "backup": "bash scripts/backup-db.sh",
+    "uploads:gc": "node scripts/cleanup-uploads.mjs",
+    "test:smoke": "node .smoke.mjs",
+    "test:e2e": "node scripts/e2e/publishing-taxonomy.mjs && node scripts/e2e/subscription-share.mjs && node scripts/e2e/security-headers.mjs"
   },
   "prisma": {
     "seed": "node prisma/seed.mjs"
@@ -19,7 +23,9 @@
     "highlight.js": "^11.12.0",
     "jose": "^6.2.12",
     "jszip": "^3.10.2",
-    "next": "16.3.6",
+    "next": "^16.4.6",
+    "nodemailer": "^10.6.0",
+    "qrcode": "^1.5.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-markdown": "^10.1.0",
@@ -37,10 +43,12 @@
     "@tailwindcss/typography": "^0.5.20",
     "@types/hast": "^3.0.5",
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.2",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.3.6",
+    "eslint-config-next": "^16.4.6",
     "prisma": "6.12.0",
     "tailwindcss": "^4",
     "typescript": "^5"

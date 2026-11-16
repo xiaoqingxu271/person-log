@@ -6,6 +6,12 @@ export function formatDate(date: Date | string): string {
   return `${y}-${m}-${day}`
 }
 
+/** 日期 + 时分（本地时区） */
+export function formatDateTime(date: Date | string): string {
+  const d = typeof date === 'string' ? new Date(date) : date
+  return `${formatDate(d)} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
 /** 大数字缩写：1234 → 1.2K，12600 → 12.6K，2_500_000 → 2.5M */
 export function formatCount(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`

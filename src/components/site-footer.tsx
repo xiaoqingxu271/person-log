@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { SubscribeForm } from '@/components/subscribe-form'
 import { GithubIcon, MailIcon, RssIcon, SparkleIcon } from '@/components/icons'
 
@@ -6,10 +7,12 @@ interface SiteFooterProps {
   email: string
   footerText: string
   creator: string | null
+  icpNumber: string
+  icpUrl: string
 }
 
 /** 订阅玻璃栏 + 社交链接 + Keep Learning 花体署名 */
-export function SiteFooter({ githubUrl, email, footerText, creator }: SiteFooterProps) {
+export function SiteFooter({ githubUrl, email, footerText, creator, icpNumber, icpUrl }: SiteFooterProps) {
   const socials = [
     githubUrl && { href: githubUrl, label: 'GitHub', icon: <GithubIcon />, external: true },
     email && { href: `mailto:${email}`, label: '邮箱', icon: <MailIcon />, external: false },
@@ -27,7 +30,7 @@ export function SiteFooter({ githubUrl, email, footerText, creator }: SiteFooter
             <span>
               <span className="block text-base font-bold text-white">订阅我的博客</span>
               <span className="mt-0.5 block text-xs text-slate-400">
-                获取最新文章与独家内容，直达你的邮箱。
+                留下邮箱，加入新文章更新通知列表。
               </span>
             </span>
           </div>
@@ -73,6 +76,26 @@ export function SiteFooter({ githubUrl, email, footerText, creator }: SiteFooter
             创建与维护
           </>
         )}
+        {icpNumber && (
+          <>
+            {' · '}
+            <a
+              href={icpUrl || 'https://beian.miit.gov.cn/'}
+              target="_blank"
+              rel="noreferrer"
+              className="text-slate-400 underline-offset-2 transition-colors hover:text-ice-300 hover:underline"
+            >
+              {icpNumber}
+            </a>
+          </>
+        )}
+        {' · '}
+        <Link
+          href="/privacy"
+          className="text-slate-400 underline-offset-2 transition-colors hover:text-ice-300 hover:underline"
+        >
+          隐私政策
+        </Link>
       </p>
     </footer>
   )

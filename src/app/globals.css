@@ -462,3 +462,81 @@ pre {
 .prose pre .hljs {
   background: transparent;
 }
+
+/* ---------- 音频播放器 ---------- */
+.seek-range,
+.volume-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 5px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    #34d399,
+    #38bdf8 var(--progress, 0%),
+    rgba(255, 255, 255, 0.14) var(--progress, 0%)
+  );
+  cursor: pointer;
+  outline: none;
+}
+.volume-range {
+  height: 4px;
+}
+.seek-range::-webkit-slider-thumb,
+.volume-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.85);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.volume-range::-webkit-slider-thumb {
+  opacity: 1;
+  height: 10px;
+  width: 10px;
+}
+.seek-range:hover::-webkit-slider-thumb,
+.seek-range:focus-visible::-webkit-slider-thumb {
+  opacity: 1;
+}
+.seek-range::-moz-range-thumb,
+.volume-range::-moz-range-thumb {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.85);
+}
+.seek-range:focus-visible,
+.volume-range:focus-visible {
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+}
+
+@keyframes eq-bounce {
+  0%, 100% { height: 25%; }
+  50% { height: 100%; }
+}
+.eq-bar {
+  height: 100%;
+  animation: eq-bounce 0.9s ease-in-out infinite;
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eq-bar,
+  .spin-slow {
+    animation: none;
+  }
+}

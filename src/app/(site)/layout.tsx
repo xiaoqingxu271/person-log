@@ -4,6 +4,7 @@ import { hasRecentMoment } from '@/lib/moments'
 import { AuroraBackground } from '@/components/aurora-background'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
+import { AudioRoot } from '@/components/audio/audio-root'
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const cfg = await getSiteConfig()
@@ -23,21 +24,25 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col">
-      <AuroraBackground />
-      <SiteHeader
-        siteName={cfg.siteName}
-        ownerName={owner?.displayName || cfg.siteName}
-        ownerAvatar={owner?.avatarUrl || '/images/avatar.jpg'}
-        hasRecentMoment={Boolean(recentMoment)}
-      />
-      <main className="relative z-10 w-full flex-1">{children}</main>
-      <SiteFooter
-        githubUrl={cfg.githubUrl}
-        email={cfg.email}
-        footerText={cfg.footerText}
-        creator={creator}
-      />
-    </div>
+    <AudioRoot>
+      <div className="relative flex min-h-screen flex-col">
+        <AuroraBackground />
+        <SiteHeader
+          siteName={cfg.siteName}
+          ownerName={owner?.displayName || cfg.siteName}
+          ownerAvatar={owner?.avatarUrl || '/images/avatar.jpg'}
+          hasRecentMoment={Boolean(recentMoment)}
+        />
+        <main className="relative z-10 w-full flex-1">{children}</main>
+        <SiteFooter
+          githubUrl={cfg.githubUrl}
+          email={cfg.email}
+          footerText={cfg.footerText}
+          creator={creator}
+          icpNumber={cfg.icpNumber}
+          icpUrl={cfg.icpUrl}
+        />
+      </div>
+    </AudioRoot>
   )
 }

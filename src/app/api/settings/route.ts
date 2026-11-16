@@ -12,6 +12,8 @@ const ALLOWED_FIELDS: (keyof SiteConfigValues)[] = [
   'bannerUrl',
   'commentBannedWords',
   'commentAutoApproveEmails',
+  'icpNumber',
+  'icpUrl',
 ]
 
 export async function POST(req: NextRequest) {

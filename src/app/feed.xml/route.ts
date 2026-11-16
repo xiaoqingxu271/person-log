@@ -1,6 +1,7 @@
 import { getSiteConfig } from '@/lib/site-config'
 import { prisma } from '@/lib/db'
 import { SITE } from '@/lib/site'
+import { visiblePostWhere } from '@/lib/post-visibility'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,7 +17,7 @@ function esc(value: string): string {
 export async function GET() {
   const cfg = await getSiteConfig()
   const posts = await prisma.post.findMany({
-    where: { status: 'published' },
+    where: visiblePostWhere(),
     orderBy: { publishedAt: 'desc' },
     take: 20,
     include: { category: true },

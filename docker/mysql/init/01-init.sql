@@ -4,164 +4,192 @@
 -- 供 Docker 首次启动时自动初始化；本地开发直接用 npm run db:push
 -- =====================================================================
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-DROP TABLE IF EXISTS `category`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `category` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `slug` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `category_slug_key` (`slug`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `comment`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `comment` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `post_id` int NOT NULL,
-  `parent_id` int DEFAULT NULL,
-  `author_name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `author_email` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `author_url` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `status` enum('pending','approved','hidden') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
-  `ip` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `user_agent` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `is_owner` tinyint(1) NOT NULL DEFAULT '0',
-  `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-  PRIMARY KEY (`id`),
-  KEY `comment_post_id_status_created_at_idx` (`post_id`,`status`,`created_at`),
-  KEY `comment_parent_id_idx` (`parent_id`),
-  CONSTRAINT `comment_parent_id_fkey` FOREIGN KEY (`parent_id`) REFERENCES `comment` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `comment_post_id_fkey` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `daily_stat`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `daily_stat` (
-  `date` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `pv` int NOT NULL DEFAULT '0',
-  PRIMARY KEY (`date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `friend_link`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `friend_link` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `url` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `avatar` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `description` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `is_visible` tinyint(1) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `moment`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `moment` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `image_url` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `post`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `post` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `title` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `slug` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `summary` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `content_md` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `cover_url` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `status` enum('draft','published') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'draft',
-  `is_pinned` tinyint(1) NOT NULL DEFAULT '0',
-  `views` int NOT NULL DEFAULT '0',
-  `likes` int NOT NULL DEFAULT '0',
-  `category_id` int DEFAULT NULL,
-  `published_at` datetime(3) DEFAULT NULL,
-  `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-  `updated_at` datetime(3) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `post_slug_key` (`slug`),
-  KEY `post_status_published_at_idx` (`status`,`published_at`),
-  KEY `post_category_id_fkey` (`category_id`),
-  CONSTRAINT `post_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `post_tag`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `post_tag` (
-  `post_id` int NOT NULL,
-  `tag_id` int NOT NULL,
-  PRIMARY KEY (`post_id`,`tag_id`),
-  KEY `post_tag_tag_id_idx` (`tag_id`),
-  CONSTRAINT `post_tag_post_id_fkey` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `post_tag_tag_id_fkey` FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `site_config`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `site_config` (
-  `key` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `value` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `tag`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `tag` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `slug` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `tag_name_key` (`name`),
-  UNIQUE KEY `tag_slug_key` (`slug`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `user`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+-- CreateTable
 CREATE TABLE `user` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `display_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `avatar_url` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `created_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `user_username_key` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `username` VARCHAR(50) NOT NULL,
+    `password_hash` VARCHAR(255) NOT NULL,
+    `display_name` VARCHAR(100) NOT NULL DEFAULT '',
+    `avatar_url` VARCHAR(500) NOT NULL DEFAULT '',
+    `session_version` INTEGER NOT NULL DEFAULT 0,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+    UNIQUE INDEX `user_username_key`(`username`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `category` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(50) NOT NULL,
+    `slug` VARCHAR(100) NOT NULL,
+    `description` VARCHAR(500) NOT NULL DEFAULT '',
+
+    UNIQUE INDEX `category_slug_key`(`slug`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `post` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `title` VARCHAR(200) NOT NULL,
+    `slug` VARCHAR(200) NOT NULL,
+    `summary` VARCHAR(500) NOT NULL DEFAULT '',
+    `content_md` MEDIUMTEXT NOT NULL,
+    `cover_url` VARCHAR(500) NOT NULL DEFAULT '',
+    `status` ENUM('draft', 'published') NOT NULL DEFAULT 'draft',
+    `is_pinned` BOOLEAN NOT NULL DEFAULT false,
+    `views` INTEGER NOT NULL DEFAULT 0,
+    `likes` INTEGER NOT NULL DEFAULT 0,
+    `category_id` INTEGER NULL,
+    `published_at` DATETIME(3) NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `post_slug_key`(`slug`),
+    INDEX `post_status_published_at_idx`(`status`, `published_at`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `tag` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(50) NOT NULL,
+    `slug` VARCHAR(100) NOT NULL,
+
+    UNIQUE INDEX `tag_name_key`(`name`),
+    UNIQUE INDEX `tag_slug_key`(`slug`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `post_tag` (
+    `post_id` INTEGER NOT NULL,
+    `tag_id` INTEGER NOT NULL,
+
+    INDEX `post_tag_tag_id_idx`(`tag_id`),
+    PRIMARY KEY (`post_id`, `tag_id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `comment` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `post_id` INTEGER NOT NULL,
+    `parent_id` INTEGER NULL,
+    `author_name` VARCHAR(50) NOT NULL,
+    `author_email` VARCHAR(200) NOT NULL,
+    `author_url` VARCHAR(500) NOT NULL DEFAULT '',
+    `content` TEXT NOT NULL,
+    `status` ENUM('pending', 'approved', 'hidden') NOT NULL DEFAULT 'pending',
+    `ip` VARCHAR(45) NOT NULL DEFAULT '',
+    `user_agent` VARCHAR(500) NOT NULL DEFAULT '',
+    `is_owner` BOOLEAN NOT NULL DEFAULT false,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    INDEX `comment_post_id_status_created_at_idx`(`post_id`, `status`, `created_at`),
+    INDEX `comment_parent_id_idx`(`parent_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `friend_link` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(100) NOT NULL,
+    `url` VARCHAR(500) NOT NULL,
+    `avatar` VARCHAR(500) NOT NULL DEFAULT '',
+    `description` VARCHAR(500) NOT NULL DEFAULT '',
+    `is_visible` BOOLEAN NOT NULL DEFAULT true,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `site_config` (
+    `key` VARCHAR(100) NOT NULL,
+    `value` TEXT NOT NULL,
+
+    PRIMARY KEY (`key`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `moment` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `content` TEXT NOT NULL,
+    `image_url` VARCHAR(500) NOT NULL DEFAULT '',
+    `likes` INTEGER NOT NULL DEFAULT 0,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `daily_stat` (
+    `date` VARCHAR(10) NOT NULL,
+    `pv` INTEGER NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (`date`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `subscriber` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `email` VARCHAR(200) NOT NULL,
+    `token` VARCHAR(64) NULL,
+    `status` VARCHAR(20) NOT NULL DEFAULT 'confirmed',
+    `confirm_token` VARCHAR(64) NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    UNIQUE INDEX `subscriber_email_key`(`email`),
+    UNIQUE INDEX `subscriber_token_key`(`token`),
+    UNIQUE INDEX `subscriber_confirm_token_key`(`confirm_token`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `music_item` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `title` VARCHAR(200) NOT NULL,
+    `artist` VARCHAR(200) NOT NULL,
+    `cover_url` VARCHAR(500) NOT NULL DEFAULT '',
+    `genre` VARCHAR(50) NOT NULL DEFAULT '',
+    `rating` INTEGER NOT NULL DEFAULT 0,
+    `review` VARCHAR(1000) NOT NULL DEFAULT '',
+    `listen_url` VARCHAR(500) NOT NULL DEFAULT '',
+    `is_visible` BOOLEAN NOT NULL DEFAULT true,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `photo` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `title` VARCHAR(200) NOT NULL,
+    `description` VARCHAR(500) NOT NULL DEFAULT '',
+    `image_url` VARCHAR(500) NOT NULL,
+    `location` VARCHAR(100) NOT NULL DEFAULT '',
+    `taken_at` DATETIME(3) NULL,
+    `width` INTEGER NOT NULL DEFAULT 0,
+    `height` INTEGER NOT NULL DEFAULT 0,
+    `is_visible` BOOLEAN NOT NULL DEFAULT true,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    INDEX `photo_is_visible_taken_at_idx`(`is_visible`, `taken_at`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `post` ADD CONSTRAINT `post_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `category`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `post_tag` ADD CONSTRAINT `post_tag_post_id_fkey` FOREIGN KEY (`post_id`) REFERENCES `post`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `post_tag` ADD CONSTRAINT `post_tag_tag_id_fkey` FOREIGN KEY (`tag_id`) REFERENCES `tag`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `comment` ADD CONSTRAINT `comment_post_id_fkey` FOREIGN KEY (`post_id`) REFERENCES `post`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `comment` ADD CONSTRAINT `comment_parent_id_fkey` FOREIGN KEY (`parent_id`) REFERENCES `comment`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 

@@ -14,6 +14,8 @@ const nav = [
   { href: '/categories', label: '分类' },
   { href: '/tags', label: '标签' },
   { href: '/moments', label: '说说' },
+  { href: '/music', label: '音乐' },
+  { href: '/gallery', label: '相册' },
   { href: '/friends', label: '友链' },
   { href: '/about', label: '关于' },
 ]

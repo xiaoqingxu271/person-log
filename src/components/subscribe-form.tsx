@@ -24,7 +24,12 @@ export function SubscribeForm() {
         setMessage({ ok: false, text: data.error ?? '订阅失败，请稍后再试' })
         return
       }
-      setMessage({ ok: true, text: '订阅成功，新文章会第一时间送达你的邮箱 ✨' })
+      setMessage({
+        ok: true,
+        text: data.confirmationRequired
+          ? '确认邮件已发送，请查收并点击确认后生效'
+          : '订阅成功，邮箱已加入更新通知列表 ✨',
+      })
       setEmail('')
     } catch {
       setMessage({ ok: false, text: '网络异常，请稍后再试' })

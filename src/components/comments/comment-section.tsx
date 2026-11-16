@@ -115,7 +115,7 @@ export function CommentSection({ postId, comments, loggedIn }: Props) {
       <span className="font-medium">{comment.authorName}</span>
     )
     return (
-      <li key={comment.id} className={isReply ? 'pl-10' : ''}>
+      <li key={comment.id} id={`comment-${comment.id}`} className={isReply ? 'pl-10' : ''}>
         <div
           className={
             'glass-chip rounded-xl p-3.5 ' +

@@ -11,6 +11,8 @@ export interface SiteConfigValues {
   bannerUrl: string
   commentBannedWords: string
   commentAutoApproveEmails: string
+  icpNumber: string
+  icpUrl: string
 }
 
 const KEY_MAP: Record<keyof SiteConfigValues, string> = {
@@ -23,6 +25,8 @@ const KEY_MAP: Record<keyof SiteConfigValues, string> = {
   bannerUrl: 'banner_url',
   commentBannedWords: 'comment_banned_words',
   commentAutoApproveEmails: 'comment_auto_approve_emails',
+  icpNumber: 'icp_number',
+  icpUrl: 'icp_url',
 }
 
 function defaults(): SiteConfigValues {
@@ -36,6 +40,8 @@ function defaults(): SiteConfigValues {
     bannerUrl: '',
     commentBannedWords: '',
     commentAutoApproveEmails: '',
+    icpNumber: '',
+    icpUrl: 'https://beian.miit.gov.cn/',
   }
 }
 

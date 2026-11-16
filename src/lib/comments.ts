@@ -1,6 +1,7 @@
 import { createHash } from 'crypto'
 import { prisma } from '@/lib/db'
 import { getSiteConfig } from '@/lib/site-config'
+import { isPostPublic } from '@/lib/post-visibility'
 import type { CommentStatus } from '@prisma/client'
 
 /** 头像：邮箱 md5 匹配 Cravatar（国内可用的 Gravatar 镜像），无匹配时由其生成默认头像 */
@@ -62,8 +63,12 @@ export async function createComment(
     if (url && !/^https?:\/\//.test(url)) return { ok: false, error: '网址需以 http(s):// 开头' }
   }
 
-  const post = await prisma.post.findUnique({ where: { id: input.postId }, select: { id: true } })
+  const post = await prisma.post.findUnique({
+    where: { id: input.postId },
+    select: { id: true, status: true, publishedAt: true },
+  })
   if (!post) return { ok: false, error: '文章不存在' }
+  if (!isPostPublic(post)) return { ok: false, error: '文章尚未发布' }
 
   if (input.parentId !== null) {
     // 只允许对已通过的一级评论进行楼中楼回复

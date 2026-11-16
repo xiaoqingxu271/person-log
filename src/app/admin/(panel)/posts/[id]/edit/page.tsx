@@ -28,6 +28,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
         isPinned: post.isPinned,
         categoryName: post.category?.name ?? '',
         tagNames: post.tags.map((t) => t.tag.name).join('、'),
+        publishedAt: post.publishedAt?.toISOString() ?? '',
       }}
     />
   )

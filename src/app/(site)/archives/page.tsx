@@ -4,6 +4,7 @@ import { listArchivePosts, getRecentPosts, listTagsWithCount } from '@/lib/posts
 import { getBlogStats } from '@/lib/stats'
 import { formatDate } from '@/lib/format'
 import { ArrowRightIcon, DownloadIcon, FileTextIcon, FolderIcon, TagIcon, HeartIcon } from '@/components/icons'
+import { Reveal } from '@/components/reveal'
 
 export const dynamic = 'force-dynamic'
 
@@ -111,9 +112,9 @@ export default async function ArchivesPage() {
                               : 'bg-nebula-300 shadow-[0_0_10px_rgba(196,181,253,0.9)]')
                           }
                         />
-                        {monthPosts.map((post) => (
+                        {monthPosts.map((post, pi) => (
+                          <Reveal key={post.slug} delay={pi * 70}>
                           <article
-                            key={post.slug}
                             className="glass-panel group flex gap-4 rounded-2xl p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-ice-400/30"
                           >
                             <div className="w-11 shrink-0 text-center">
@@ -161,6 +162,7 @@ export default async function ArchivesPage() {
                               </span>
                             </Link>
                           </article>
+                          </Reveal>
                         ))}
                       </div>
                     ))}

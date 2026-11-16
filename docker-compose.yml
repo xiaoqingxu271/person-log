@@ -1,9 +1,8 @@
 # =====================================================================
 # person-log 编排：mysql + app 两个服务
-# 当前阶段（应用代码未就绪）只起数据库：  docker compose up -d mysql
-# 应用代码就绪后全栈启动：               docker compose up -d --build
-# 停止：                                 docker compose down（数据保留在卷里；
-#                                        加 -v 会连数据卷一起删除，慎用）
+# 数据库：docker compose up -d mysql
+# 全栈：  docker compose up -d --build（首次启动自动建表并创建管理员）
+# 停止：  docker compose down（数据保留在卷里；加 -v 会连数据卷一起删除，慎用）
 # =====================================================================
 name: person-log
 
@@ -39,6 +38,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # NEXT_PUBLIC_* 在构建期内联，必须在 build 阶段传入
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
     container_name: person-log-app
     restart: unless-stopped
     environment:
@@ -46,11 +48,28 @@ services:
       TZ: Asia/Shanghai
       # 容器网络内通过服务名 mysql 访问（不能用 localhost），由 compose 自动拼接
       DATABASE_URL: mysql://${MYSQL_USER:-personlog}:${MYSQL_PASSWORD:-personlog_pwd}@mysql:3306/${MYSQL_DATABASE:-personlog}
+      # 会话签名密钥，必填：openssl rand -hex 32
+      AUTH_SECRET: ${AUTH_SECRET:?请在 .env 中设置 AUTH_SECRET（openssl rand -hex 32）}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      # 首次启动且用户表为空时创建管理员（之后改这里不会覆盖已有账号）
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123456}
+      # 可选：未配置时邮件通知自动跳过
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      MAIL_FROM: ${MAIL_FROM:-}
     ports:
       - "${APP_HOST_PORT:-3000}:3000"
+    volumes:
+      # 上传的图片/音频持久化，重建镜像不丢
+      - uploads_data:/app/data/uploads
     depends_on:
       mysql:
         condition: service_healthy
 
 volumes:
   mysql_data:
+  uploads_data:

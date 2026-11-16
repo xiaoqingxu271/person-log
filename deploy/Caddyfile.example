@@ -1,0 +1,16 @@
+# =====================================================================
+# Caddy 反向代理样例（自动申请 HTTPS 证书）
+# 用法：复制为 /etc/caddy/Caddyfile，替换域名后 systemctl reload caddy
+# 应用需运行在 127.0.0.1:3000（docker compose 或 npm run start）
+# =====================================================================
+
+example.com {
+    encode zstd gzip
+
+    # 音频上传上限 30MB，留出表单余量
+    request_body {
+        max_size 40MB
+    }
+
+    reverse_proxy 127.0.0.1:3000
+}

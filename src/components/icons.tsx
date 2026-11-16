@@ -144,6 +144,15 @@ export function SettingsIcon({ className }: IconProps) {
   )
 }
 
+export function KeyIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <circle cx="7.5" cy="15.5" r="4.5" />
+      <path d="m11 12 9-9M17 4l3 3M14 7l3 3" />
+    </svg>
+  )
+}
+
 export function DownloadIcon({ className }: IconProps) {
   return (
     <svg {...base(className)}>
@@ -174,6 +183,28 @@ export function HomeIcon({ className }: IconProps) {
       <path d="M3 10.5 12 3l9 7.5" />
       <path d="M5 9.5V21h14V9.5" />
       <path d="M10 21v-6h4v6" />
+    </svg>
+  )
+}
+
+export function ShareIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4" />
+    </svg>
+  )
+}
+
+export function QrIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <path d="M14 14h3v3h-3zM20 14h1M14 20h1M18 21h3v-3" />
     </svg>
   )
 }
@@ -243,6 +274,153 @@ export function SparkleIcon({ className }: IconProps) {
   return (
     <svg className={className ?? 'h-4 w-4'} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
       <path d="M12 2c.6 4.8 3.2 7.4 8 8-4.8.6-7.4 3.2-8 8-.6-4.8-3.2-7.4-8-8 4.8-.6 7.4-3.2 8-8Z" />
+    </svg>
+  )
+}
+
+export function MusicIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M9 18V5l12-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="18" cy="16" r="3" />
+    </svg>
+  )
+}
+
+export function CameraIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+      <circle cx="12" cy="13" r="4" />
+    </svg>
+  )
+}
+
+export function PlayIcon({ className }: IconProps) {
+  return (
+    <svg className={className ?? 'h-4 w-4'} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86a1 1 0 0 0-1.5.86Z" />
+    </svg>
+  )
+}
+
+export function StarIcon({ className, filled = false }: IconProps & { filled?: boolean }) {
+  return (
+    <svg {...base(className)} fill={filled ? 'currentColor' : 'none'}>
+      <path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2Z" />
+    </svg>
+  )
+}
+
+export function MapPinIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  )
+}
+
+export function ChevronLeftIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  )
+}
+
+export function ChevronRightIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  )
+}
+
+export function ImageIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="9" cy="9" r="2" />
+      <path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />
+    </svg>
+  )
+}
+
+export function UploadIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+    </svg>
+  )
+}
+
+export function PlusIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  )
+}
+
+export function PencilIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </svg>
+  )
+}
+
+export function HeadphonesIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" />
+    </svg>
+  )
+}
+
+export function PauseIcon({ className }: IconProps) {
+  return (
+    <svg className={className ?? 'h-4 w-4'} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <rect x="6" y="4" width="4" height="16" rx="1.2" />
+      <rect x="14" y="4" width="4" height="16" rx="1.2" />
+    </svg>
+  )
+}
+
+export function ShuffleIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5" />
+    </svg>
+  )
+}
+
+export function RepeatIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="m17 2 4 4-4 4" />
+      <path d="M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4" />
+      <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+    </svg>
+  )
+}
+
+export function VolumeIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M11 5 6 9H2v6h4l5 4V5Z" />
+      <path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14" />
+    </svg>
+  )
+}
+
+export function VolumeMuteIcon({ className }: IconProps) {
+  return (
+    <svg {...base(className)}>
+      <path d="M11 5 6 9H2v6h4l5 4V5Z" />
+      <path d="m23 9-6 6M17 9l6 6" />
     </svg>
   )
 }

@@ -3,6 +3,7 @@ import { PostRowCard } from '@/components/post-row-card'
 import { Pagination } from '@/components/pagination'
 import { tagPoem } from '@/components/tag-cloud'
 import { ArrowRightIcon } from '@/components/icons'
+import { Reveal } from '@/components/reveal'
 import type { PostWithRelations } from '@/lib/posts'
 
 /** 选中标签的文章列表面板：头部 + 横向文章卡 + 分页 */
@@ -50,17 +51,18 @@ export function TagSection({
         <p className="py-12 text-center text-sm text-slate-400">该标签下还没有文章。</p>
       ) : (
         <div className="mt-5 space-y-4">
-          {posts.map((post) => (
-            <PostRowCard
-              key={post.id}
-              title={post.title}
-              slug={post.slug}
-              summary={post.summary}
-              coverUrl={post.coverUrl}
-              publishedAt={post.publishedAt}
-              tags={post.tags.map((t) => ({ name: t.tag.name, slug: t.tag.slug }))}
-              views={post.views}
-            />
+          {posts.map((post, index) => (
+            <Reveal key={post.id} delay={index * 60}>
+              <PostRowCard
+                title={post.title}
+                slug={post.slug}
+                summary={post.summary}
+                coverUrl={post.coverUrl}
+                publishedAt={post.publishedAt}
+                tags={post.tags.map((t) => ({ name: t.tag.name, slug: t.tag.slug }))}
+                views={post.views}
+              />
+            </Reveal>
           ))}
         </div>
       )}

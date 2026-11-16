@@ -1,6 +1,7 @@
-// person-log 全量冒烟测试：M1 发布闭环 + M2 体验 + M3 互动
-// 运行：node .smoke.mjs（服务器需在 localhost:3000 运行）
-const base = 'http://localhost:3000'
+// person-log 全量冒烟测试：M1 发布闭环 + M2 体验 + M3 互动 + M5 演进 + M6 音乐库/相册 + M7 站内音频
+// 运行：node .smoke.mjs（服务器需在 localhost:3000 运行；可用 SMOKE_BASE 指定其他地址）
+import { readFileSync } from 'fs'
+const base = process.env.SMOKE_BASE ?? 'http://localhost:3000'
 
 // 1x1 透明 PNG
 const PNG_B64 =
@@ -244,6 +245,144 @@ async function main() {
   const relPage = await r.text()
   check('M5 相关文章推荐', relPage.includes('相关文章') && relPage.includes('M5 相关文章测试'))
 
+  // ================= M6：音乐库 + 相册 =================
+  r = await fetch(`${base}/music`)
+  check('M6 音乐库页 200', r.status === 200)
+  r = await fetch(`${base}/gallery`)
+  check('M6 相册页 200', r.status === 200)
+
+  const music = await fetch(`${base}/api/music`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', cookie },
+    body: JSON.stringify({
+      title: 'M6 测试专辑',
+      artist: '测试艺术家',
+      genre: '测试',
+      rating: 4,
+      review: '冒烟测试乐评',
+      listenUrl: 'https://example.com/album',
+    }),
+  })
+  const musicData = await music.json().catch(() => ({}))
+  check('M6 添加专辑', music.ok && Boolean(musicData.id), JSON.stringify(musicData))
+  r = await fetch(`${base}/music`)
+  check('M6 专辑前台可见', (await r.text()).includes('M6 测试专辑'))
+
+  const guestMusic = await fetch(`${base}/api/music`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: 'x', artist: 'y' }),
+  })
+  check('M6 游客添加专辑被拒(401)', guestMusic.status === 401)
+
+  const badRating = await fetch(`${base}/api/music`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', cookie },
+    body: JSON.stringify({ title: 'x', artist: 'y', rating: 6 }),
+  })
+  check('M6 非法评分被拒(400)', badRating.status === 400)
+
+  const musicEdit = await fetch(`${base}/api/music/${musicData.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', cookie },
+    body: JSON.stringify({ title: 'M6 测试专辑改', artist: '测试艺术家', rating: 5 }),
+  })
+  check('M6 编辑专辑', musicEdit.ok)
+  r = await fetch(`${base}/music`)
+  check('M6 编辑前台生效', (await r.text()).includes('M6 测试专辑改'))
+
+  const musicHide = await fetch(`${base}/api/music/${musicData.id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', cookie },
+    body: JSON.stringify({ isVisible: false }),
+  })
+  check('M6 隐藏专辑', musicHide.ok)
+  r = await fetch(`${base}/music`)
+  check('M6 隐藏后前台不可见', !(await r.text()).includes('M6 测试专辑改'))
+
+  const photo = await fetch(`${base}/api/photos`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', cookie },
+    body: JSON.stringify({
+      title: 'M6 测试照片',
+      imageUrl: '/images/gallery/milkyway-coast.jpg',
+      location: '测试地点',
+      takenAt: '2025-01-01',
+      width: 1536,
+      height: 1024,
+      description: '冒烟测试照片',
+    }),
+  })
+  const photoData = await photo.json().catch(() => ({}))
+  check('M6 添加照片', photo.ok && Boolean(photoData.id), JSON.stringify(photoData))
+  r = await fetch(`${base}/gallery`)
+  check('M6 照片前台可见', (await r.text()).includes('M6 测试照片'))
+
+  const guestPhoto = await fetch(`${base}/api/photos`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: 'x', imageUrl: '/images/x.jpg' }),
+  })
+  check('M6 游客添加照片被拒(401)', guestPhoto.status === 401)
+
+  const noImage = await fetch(`${base}/api/photos`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', cookie },
+    body: JSON.stringify({ title: 'x' }),
+  })
+  check('M6 缺图片被拒(400)', noImage.status === 400)
+
+  const photoEdit = await fetch(`${base}/api/photos/${photoData.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', cookie },
+    body: JSON.stringify({ title: 'M6 测试照片改', imageUrl: '/images/gallery/milkyway-coast.jpg', width: 1536, height: 1024 }),
+  })
+  check('M6 编辑照片', photoEdit.ok)
+  const photoHide = await fetch(`${base}/api/photos/${photoData.id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', cookie },
+    body: JSON.stringify({ isVisible: false }),
+  })
+  check('M6 隐藏照片', photoHide.ok)
+  r = await fetch(`${base}/gallery`)
+  check('M6 隐藏后前台不可见', !(await r.text()).includes('M6 测试照片改'))
+
+  r = await fetch(`${base}/admin/music`, { headers: { cookie } })
+  check('M6 后台音乐管理页', r.status === 200 && (await r.text()).includes('音乐库管理'))
+  r = await fetch(`${base}/admin/photos`, { headers: { cookie } })
+  check('M6 后台相册管理页', r.status === 200 && (await r.text()).includes('相册管理'))
+
+  // ================= M7：站内音频播放 =================
+  r = await fetch(`${base}/audio/orbit.wav`)
+  check('M7 演示音频可访问', r.status === 200 && (r.headers.get('content-type') ?? '').includes('audio'))
+
+  const wavBytes = readFileSync('public/audio/orbit.wav')
+  const audioForm = new FormData()
+  audioForm.append('file', new Blob([wavBytes], { type: 'audio/wav' }), 'smoke.wav')
+  const audioUp = await fetch(`${base}/api/uploads/audio`, { method: 'POST', headers: { cookie }, body: audioForm })
+  const audioUpData = await audioUp.json().catch(() => ({}))
+  check('M7 音频上传', audioUp.ok && typeof audioUpData.url === 'string', JSON.stringify(audioUpData))
+
+  const rangeRes = await fetch(`${base}${audioUpData.url}`, { headers: { Range: 'bytes=0-1023' } })
+  check(
+    'M7 音频 Range 请求(206)',
+    rangeRes.status === 206 && (rangeRes.headers.get('content-range') ?? '').startsWith('bytes 0-1023/'),
+    rangeRes.headers.get('content-range') ?? '',
+  )
+
+  const guestAudio = await fetch(`${base}/api/uploads/audio`, { method: 'POST', body: audioForm })
+  check('M7 游客上传音频被拒(401)', guestAudio.status === 401)
+
+  const musicAudio = await fetch(`${base}/api/music`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', cookie },
+    body: JSON.stringify({ title: 'M7 音频测试专辑', artist: '测试', audioUrl: audioUpData.url }),
+  })
+  const musicAudioData = await musicAudio.json().catch(() => ({}))
+  check('M7 创建带音频专辑', musicAudio.ok && Boolean(musicAudioData.id))
+  r = await fetch(`${base}/music`)
+  check('M7 音乐页携带音源', (await r.text()).includes(audioUpData.url))
+
   // ================= 清理 =================
   for (const id of [guestCommentId, replyData.id, whiteData.id].filter(Boolean)) {
     await fetch(`${base}/api/comments/${id}`, { method: 'DELETE', headers: { cookie } })
@@ -253,6 +392,15 @@ async function main() {
   }
   if (friendData.id) {
     await fetch(`${base}/api/friends/${friendData.id}`, { method: 'DELETE', headers: { cookie } })
+  }
+  if (musicData.id) {
+    await fetch(`${base}/api/music/${musicData.id}`, { method: 'DELETE', headers: { cookie } })
+  }
+  if (musicAudioData.id) {
+    await fetch(`${base}/api/music/${musicAudioData.id}`, { method: 'DELETE', headers: { cookie } })
+  }
+  if (photoData.id) {
+    await fetch(`${base}/api/photos/${photoData.id}`, { method: 'DELETE', headers: { cookie } })
   }
   if (relData.id) {
     await fetch(`${base}/api/posts/${relData.id}`, { method: 'DELETE', headers: { cookie } })

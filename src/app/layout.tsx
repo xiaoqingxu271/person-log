@@ -31,15 +31,27 @@ const display = Playfair_Display({
 
 export async function generateMetadata(): Promise<Metadata> {
   const cfg = await getSiteConfig()
+  const title = `${cfg.siteName} · ${cfg.tagline}`
   return {
     metadataBase: new URL(SITE.url),
     title: {
-      default: `${cfg.siteName} · ${cfg.tagline}`,
+      default: title,
       template: `%s · ${cfg.siteName}`,
     },
     description: cfg.description,
     alternates: {
       types: { 'application/rss+xml': '/feed.xml' },
+    },
+    openGraph: {
+      type: 'website',
+      siteName: cfg.siteName,
+      title,
+      description: cfg.description,
+      images: [{ url: '/images/og-default.jpg', width: 1200, height: 630, alt: cfg.siteName }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      images: ['/images/og-default.jpg'],
     },
   }
 }

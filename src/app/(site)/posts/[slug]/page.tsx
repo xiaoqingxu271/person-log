@@ -8,9 +8,10 @@ import { listCommentsForPost } from '@/lib/comments'
 import { getSessionUser } from '@/lib/session'
 import { getSiteConfig } from '@/lib/site-config'
 import { getBlogStats } from '@/lib/stats'
+import { isPostPublic } from '@/lib/post-visibility'
 import { extractToc } from '@/lib/toc'
 import { MarkdownView } from '@/lib/markdown'
-import { formatDate, formatCount } from '@/lib/format'
+import { formatDate, formatDateTime, formatCount } from '@/lib/format'
 import { Toc } from '@/components/toc'
 import { LikeButton } from '@/components/like-button'
 import { CommentSection } from '@/components/comments/comment-section'
@@ -18,6 +19,7 @@ import { ReadingProgress } from '@/components/reading-progress'
 import { PostNav } from '@/components/post-nav'
 import { AuthorCard } from '@/components/author-card'
 import { RelatedCard } from '@/components/related-card'
+import { PostShare } from '@/components/post-share'
 import { CalendarIcon, EyeIcon, HeartIcon } from '@/components/icons'
 import { SITE } from '@/lib/site'
 
@@ -32,7 +34,8 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const post = await getPostBySlug(decodeURIComponent(slug))
-  if (!post || post.status !== 'published') return { title: '文章不存在' }
+  if (!post || !isPostPublic(post)) return { title: '文章不存在' }
+  const image = post.coverUrl || '/images/og-default.jpg'
   return {
     title: post.title,
     description: post.summary || undefined,
@@ -41,6 +44,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: post.summary,
       type: 'article',
       publishedTime: post.publishedAt?.toISOString(),
+      images: [{ url: image, alt: post.title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      images: [image],
     },
   }
 }
@@ -49,10 +57,11 @@ export default async function PostPage({ params }: Props) {
   const { slug } = await params
   const post = await getPostBySlug(decodeURIComponent(slug))
   const user = await getSessionUser()
-  if (!post || (post.status === 'draft' && !user)) notFound()
+  const isPublic = post ? isPostPublic(post) : false
+  if (!post || (!isPublic && !user)) notFound()
 
-  // F-22 浏览量：详情页每次访问 +1（草稿预览不计）
-  if (post.status === 'published') {
+  // F-22 浏览量：详情页每次访问 +1（草稿/定时预览不计）
+  if (isPublic) {
     await incrementPostViews(post.id)
   }
   const [comments, toc, cfg, related, adjacent, stats, owner] = await Promise.all([
@@ -83,6 +92,7 @@ export default async function PostPage({ params }: Props) {
 
   const ownerName = owner?.displayName || cfg.siteName
   const ownerAvatar = owner?.avatarUrl || '/images/avatar.jpg'
+  const shareUrl = `${SITE_URL}/posts/${encodeURIComponent(post.slug)}`
 
   return (
     <>
@@ -93,9 +103,11 @@ export default async function PostPage({ params }: Props) {
       <div className="mx-auto w-full max-w-[1280px] px-3 py-6 sm:px-4 sm:py-8">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
           <article className="glass-panel animate-fade-up min-w-0 rounded-3xl p-5 sm:p-8">
-            {post.status === 'draft' && (
+            {!isPublic && (
               <p className="mb-6 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-2.5 text-sm text-amber-300">
-                草稿预览：本页仅登录用户可见，游客访问会得到 404。
+                {post.status === 'draft'
+                  ? '草稿预览：本页仅登录用户可见，游客访问会得到 404。'
+                  : `定时发布预览：将于 ${post.publishedAt ? formatDateTime(post.publishedAt) : '指定时间'} 自动上线，当前仅登录用户可见。`}
               </p>
             )}
 
@@ -165,10 +177,12 @@ export default async function PostPage({ params }: Props) {
                     <span className="inline-flex items-center gap-1.5">
                       <EyeIcon className="h-4 w-4" />
                       {formatCount(post.views + 1)}
+                      <span className="sr-only">次阅读</span>
                     </span>
                     <span className="inline-flex items-center gap-1.5">
                       <HeartIcon className="h-4 w-4" />
                       {post.likes}
+                      <span className="sr-only">次点赞</span>
                     </span>
                   </>
                 )}
@@ -200,6 +214,29 @@ export default async function PostPage({ params }: Props) {
                 ))}
               </div>
             )}
+
+            <div className="mt-10 flex flex-col gap-5 border-t border-white/10 pt-6 sm:flex-row sm:items-start sm:justify-between">
+              <div className="max-w-md">
+                <p className="text-xs font-medium text-slate-300">版权声明</p>
+                <p className="mt-1.5 text-xs leading-relaxed text-slate-400">
+                  本文由{' '}
+                  <Link href="/about" className="text-slate-300 underline-offset-2 hover:text-ice-300 hover:underline">
+                    {ownerName}
+                  </Link>{' '}
+                  创作，采用{' '}
+                  <a
+                    href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-slate-300 underline-offset-2 hover:text-ice-300 hover:underline"
+                  >
+                    CC BY-NC-SA 4.0
+                  </a>{' '}
+                  许可协议。转载请注明出处与原文链接。
+                </p>
+              </div>
+              <PostShare url={shareUrl} title={post.title} />
+            </div>
 
             <PostNav prev={adjacent.prev} next={adjacent.next} />
 

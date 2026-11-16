@@ -4,6 +4,7 @@ import { PostGridCard } from '@/components/post-grid-card'
 import { Pagination } from '@/components/pagination'
 import { RelatedCard } from '@/components/related-card'
 import { SearchIcon, ArrowRightIcon } from '@/components/icons'
+import { Reveal } from '@/components/reveal'
 
 export const dynamic = 'force-dynamic'
 
@@ -103,11 +104,7 @@ export default async function SearchPage({ searchParams }: Props) {
           ) : (
             <div className="grid gap-5 sm:grid-cols-2">
               {result.posts.map((post, index) => (
-                <div
-                  key={post.id}
-                  className="animate-fade-up"
-                  style={{ animationDelay: `${Math.min(index, 6) * 70}ms` }}
-                >
+                <Reveal key={post.id} delay={(index % 2) * 80}>
                   <PostGridCard
                     title={post.title}
                     slug={post.slug}
@@ -118,7 +115,7 @@ export default async function SearchPage({ searchParams }: Props) {
                     categorySlug={post.category?.slug}
                     views={post.views}
                   />
-                </div>
+                </Reveal>
               ))}
             </div>
           )}

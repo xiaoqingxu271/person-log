@@ -11,6 +11,10 @@ dist
 .env.*
 !.env.example
 
+# 本地运行数据（上传文件不进镜像，生产用命名卷持久化）
+data
+uploads
+
 # Docker 自身文件（应用镜像用不到）
 Dockerfile
 docker-compose.yml

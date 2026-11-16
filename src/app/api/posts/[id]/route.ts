@@ -7,6 +7,14 @@ function parseTags(input: unknown): string[] {
   return input.split(/[，,、\s]+/).filter(Boolean)
 }
 
+/** 返回 undefined 表示未指定，null 表示格式非法 */
+function parsePublishedAt(input: unknown): Date | null | undefined {
+  if (input === undefined || input === null || input === '') return undefined
+  if (typeof input !== 'string') return null
+  const date = new Date(input)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
 interface Ctx {
   params: Promise<{ id: string }>
 }
@@ -31,6 +39,11 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
     return NextResponse.json({ error: '标题和正文不能为空' }, { status: 400 })
   }
 
+  const publishedAt = parsePublishedAt(body.publishedAt)
+  if (publishedAt === null) {
+    return NextResponse.json({ error: '发布时间格式不正确' }, { status: 400 })
+  }
+
   try {
     await savePost(
       {
@@ -43,6 +56,7 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
         isPinned: Boolean(body.isPinned),
         categoryName: typeof body.categoryName === 'string' ? body.categoryName : undefined,
         tagNames: parseTags(body.tagNames),
+        publishedAt,
       },
       postId,
     )

@@ -1,11 +1,12 @@
 import { readFile } from 'fs/promises'
 import path from 'path'
 import Image from 'next/image'
+import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { getSiteConfig } from '@/lib/site-config'
 import { getBlogStats } from '@/lib/stats'
 import { MarkdownView } from '@/lib/markdown'
-import { GithubIcon, MailIcon, SparkleIcon } from '@/components/icons'
+import { ArrowRightIcon, GithubIcon, MailIcon, SparkleIcon } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,7 +22,8 @@ const STACK = [
 
 const DOING = [
   { name: 'Person Log', desc: '持续迭代的个人博客系统' },
-  { name: '极光相册', desc: '摄影作品的整理与分享' },
+  { name: '极光相册', desc: '摄影作品的整理与分享', href: '/gallery' },
+  { name: '音乐库', desc: '循环过的旋律与私藏专辑', href: '/music' },
   { name: 'LangGraph 实践', desc: '探索 LLM 应用的更多可能性' },
   { name: 'Side Projects', desc: '一些有趣的小实验' },
 ]
@@ -136,10 +138,18 @@ export default async function AboutPage() {
           <ul className="mt-4 space-y-3.5">
             {DOING.map((item) => (
               <li key={item.name}>
-                <p className="flex items-center gap-2 text-sm font-medium text-slate-100">
-                  <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-aurora-400" />
-                  {item.name}
-                </p>
+                {'href' in item && item.href ? (
+                  <Link href={item.href} className="group flex items-center gap-2 text-sm font-medium text-slate-100 transition-colors hover:text-aurora-300">
+                    <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-aurora-400" />
+                    {item.name}
+                    <ArrowRightIcon className="h-3 w-3 text-slate-500 transition-all group-hover:translate-x-0.5 group-hover:text-aurora-300" />
+                  </Link>
+                ) : (
+                  <p className="flex items-center gap-2 text-sm font-medium text-slate-100">
+                    <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-aurora-400" />
+                    {item.name}
+                  </p>
+                )}
                 <p className="mt-0.5 pl-3.5 text-xs text-slate-500">{item.desc}</p>
               </li>
             ))}

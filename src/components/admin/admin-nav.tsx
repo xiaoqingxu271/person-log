@@ -11,19 +11,35 @@ import {
   SettingsIcon,
   DownloadIcon,
   ExternalLinkIcon,
+  MusicIcon,
+  CameraIcon,
+  KeyIcon,
+  FolderIcon,
+  UsersIcon,
 } from '@/components/icons'
 
 const items = [
   { href: '/admin', label: '总览', icon: HomeIcon, exact: true },
   { href: '/admin/posts', label: '文章管理', icon: FileTextIcon, exact: false },
+  { href: '/admin/taxonomy', label: '分类标签', icon: FolderIcon, exact: false },
   { href: '/admin/comments', label: '评论管理', icon: MessageIcon, exact: false },
   { href: '/admin/moments', label: '说说管理', icon: PenLineIcon, exact: false },
+  { href: '/admin/music', label: '音乐库管理', icon: MusicIcon, exact: false },
+  { href: '/admin/photos', label: '相册管理', icon: CameraIcon, exact: false },
   { href: '/admin/friends', label: '友链管理', icon: LinkIcon, exact: false },
+  { href: '/admin/subscribers', label: '订阅管理', icon: UsersIcon, exact: false },
   { href: '/admin/settings', label: '站点设置', icon: SettingsIcon, exact: false },
+  { href: '/admin/account', label: '账户安全', icon: KeyIcon, exact: false },
 ]
 
 /** 后台侧栏导航：当前页高亮；评论管理带待审数量角标 */
-export function AdminNav({ pendingCount }: { pendingCount: number }) {
+export function AdminNav({
+  pendingCount,
+  onNavigate,
+}: {
+  pendingCount: number
+  onNavigate?: () => void
+}) {
   const pathname = usePathname()
 
   const itemClass = (active: boolean) =>
@@ -37,7 +53,7 @@ export function AdminNav({ pendingCount }: { pendingCount: number }) {
       {items.map((item) => {
         const active = item.exact ? pathname === item.href : pathname.startsWith(item.href)
         return (
-          <Link key={item.href} href={item.href} className={itemClass(active)}>
+          <Link key={item.href} href={item.href} onClick={onNavigate} className={itemClass(active)}>
             <item.icon className="h-4 w-4 shrink-0" />
             <span>{item.label}</span>
             {item.href === '/admin/comments' && pendingCount > 0 && (
@@ -61,6 +77,7 @@ export function AdminNav({ pendingCount }: { pendingCount: number }) {
       <a
         href="/api/export"
         download
+        onClick={onNavigate}
         className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-stone-600 transition-colors hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-200"
       >
         <DownloadIcon className="h-4 w-4 shrink-0" />
@@ -69,6 +86,7 @@ export function AdminNav({ pendingCount }: { pendingCount: number }) {
       <a
         href="/"
         target="_blank"
+        onClick={onNavigate}
         className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-stone-600 transition-colors hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-200"
       >
         <ExternalLinkIcon className="h-4 w-4 shrink-0" />

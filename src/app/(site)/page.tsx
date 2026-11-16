@@ -3,6 +3,7 @@ import { prisma } from '@/lib/db'
 import { getSiteConfig } from '@/lib/site-config'
 import { listPublishedPosts } from '@/lib/posts'
 import { getDailyPvSeries } from '@/lib/stats'
+import { visiblePostWhere } from '@/lib/post-visibility'
 import { PostCard } from '@/components/post-card'
 import { Pagination } from '@/components/pagination'
 import { SiteHero } from '@/components/site-hero'
@@ -25,10 +26,10 @@ export default async function HomePage({ searchParams }: Props) {
     listPublishedPosts(current),
   ])
   const [postCount, categoryCount, tagCount, viewsAgg, series] = await Promise.all([
-    prisma.post.count({ where: { status: 'published' } }),
+    prisma.post.count({ where: visiblePostWhere() }),
     prisma.category.count(),
     prisma.tag.count(),
-    prisma.post.aggregate({ where: { status: 'published' }, _sum: { views: true } }),
+    prisma.post.aggregate({ where: visiblePostWhere(), _sum: { views: true } }),
     getDailyPvSeries(365),
   ])
   const stats = {

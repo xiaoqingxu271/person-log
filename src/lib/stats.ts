@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/db'
+import { visiblePostWhere } from '@/lib/post-visibility'
 
 /** 本地时区的今日日期（YYYY-MM-DD） */
 export function localToday(): string {
@@ -43,13 +44,13 @@ export async function getDailyPvSeries(days = 14): Promise<PvSeriesPoint[]> {
 /** 前台全站统计：文章/分类/标签/获赞/评论/阅读/写作天数 */
 export async function getBlogStats() {
   const [posts, categories, tags, agg, comments, first] = await Promise.all([
-    prisma.post.count({ where: { status: 'published' } }),
+    prisma.post.count({ where: visiblePostWhere() }),
     prisma.category.count(),
     prisma.tag.count(),
-    prisma.post.aggregate({ where: { status: 'published' }, _sum: { views: true, likes: true } }),
+    prisma.post.aggregate({ where: visiblePostWhere(), _sum: { views: true, likes: true } }),
     prisma.comment.count({ where: { status: 'approved' } }),
     prisma.post.findFirst({
-      where: { status: 'published', publishedAt: { not: null } },
+      where: { ...visiblePostWhere(), publishedAt: { not: null } },
       orderBy: { publishedAt: 'asc' },
       select: { publishedAt: true },
     }),
@@ -74,7 +75,7 @@ export async function getDashboardStats() {
     await Promise.all([
       prisma.post.aggregate({ _sum: { views: true, likes: true } }),
       prisma.post.count(),
-      prisma.post.count({ where: { status: 'published' } }),
+      prisma.post.count({ where: visiblePostWhere() }),
       prisma.comment.count(),
       prisma.comment.count({ where: { status: 'pending' } }),
       prisma.moment.count(),

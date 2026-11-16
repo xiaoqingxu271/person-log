@@ -2,6 +2,7 @@ import { listCategoriesWithMeta } from '@/lib/posts'
 import { getBlogStats } from '@/lib/stats'
 import { getSiteConfig } from '@/lib/site-config'
 import { CategoryCard } from '@/components/category-card'
+import { Reveal } from '@/components/reveal'
 import { FileTextIcon, FolderIcon, TagIcon, CalendarIcon, HeartIcon, SparkleIcon } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
@@ -84,15 +85,16 @@ export default async function CategoriesPage() {
       ) : (
         <div className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {categories.map((cat, index) => (
-            <CategoryCard
-              key={cat.id}
-              name={cat.name}
-              slug={cat.slug}
-              description={cat.description}
-              count={cat._count.posts}
-              index={index}
-              topTags={cat.topTags}
-            />
+            <Reveal key={cat.id} delay={(index % 3) * 80}>
+              <CategoryCard
+                name={cat.name}
+                slug={cat.slug}
+                description={cat.description}
+                count={cat._count.posts}
+                index={index}
+                topTags={cat.topTags}
+              />
+            </Reveal>
           ))}
         </div>
       )}

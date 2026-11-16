@@ -8,6 +8,14 @@ function parseTags(input: unknown): string[] {
   return input.split(/[，,、\s]+/).filter(Boolean)
 }
 
+/** 返回 undefined 表示未指定，null 表示格式非法 */
+function parsePublishedAt(input: unknown): Date | null | undefined {
+  if (input === undefined || input === null || input === '') return undefined
+  if (typeof input !== 'string') return null
+  const date = new Date(input)
+  return Number.isNaN(date.getTime()) ? null : date
+}
+
 export async function POST(req: NextRequest) {
   const user = await getSessionUser()
   if (!user) return NextResponse.json({ error: '未登录' }, { status: 401 })
@@ -22,6 +30,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: '标题和正文不能为空' }, { status: 400 })
   }
 
+  const publishedAt = parsePublishedAt(body.publishedAt)
+  if (publishedAt === null) {
+    return NextResponse.json({ error: '发布时间格式不正确' }, { status: 400 })
+  }
+
   try {
     const post = await savePost({
       title: body.title,
@@ -33,6 +46,7 @@ export async function POST(req: NextRequest) {
       isPinned: Boolean(body.isPinned),
       categoryName: typeof body.categoryName === 'string' ? body.categoryName : undefined,
       tagNames: parseTags(body.tagNames),
+      publishedAt,
     })
     return NextResponse.json({ id: post.id, slug: post.slug })
   } catch (err) {

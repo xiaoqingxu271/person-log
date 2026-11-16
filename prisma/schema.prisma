@@ -17,6 +17,7 @@ model User {
   passwordHash String   @db.VarChar(255) @map("password_hash")
   displayName  String   @default("") @db.VarChar(100) @map("display_name")
   avatarUrl    String   @default("") @db.VarChar(500) @map("avatar_url")
+  sessionVersion Int    @default(0) @map("session_version")
   createdAt    DateTime @default(now()) @map("created_at")
 
   @@map("user")
@@ -144,9 +145,47 @@ model DailyStat {
 }
 
 model Subscriber {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique @db.VarChar(200)
-  createdAt DateTime @default(now()) @map("created_at")
+  id           Int      @id @default(autoincrement())
+  email        String   @unique @db.VarChar(200)
+  /** 退订链接的一次性凭证（旧数据可能为空） */
+  token        String?  @unique @db.VarChar(64)
+  /** confirmed：已确认/免确认；pending：等待邮件确认 */
+  status       String   @default("confirmed") @db.VarChar(20)
+  /** 订阅确认凭证，确认后清空 */
+  confirmToken String?  @unique @map("confirm_token") @db.VarChar(64)
+  createdAt    DateTime @default(now()) @map("created_at")
 
   @@map("subscriber")
+}
+
+model MusicItem {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(200)
+  artist    String   @db.VarChar(200)
+  coverUrl  String   @default("") @db.VarChar(500) @map("cover_url")
+  audioUrl  String   @default("") @db.VarChar(500) @map("audio_url")
+  genre     String   @default("") @db.VarChar(50)
+  rating    Int      @default(0)
+  review    String   @default("") @db.VarChar(1000)
+  listenUrl String   @default("") @db.VarChar(500) @map("listen_url")
+  isVisible Boolean  @default(true) @map("is_visible")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("music_item")
+}
+
+model Photo {
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(200)
+  description String    @default("") @db.VarChar(500)
+  imageUrl    String    @db.VarChar(500) @map("image_url")
+  location    String    @default("") @db.VarChar(100)
+  takenAt     DateTime? @map("taken_at")
+  width       Int       @default(0)
+  height      Int       @default(0)
+  isVisible   Boolean   @default(true) @map("is_visible")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([isVisible, takenAt])
+  @@map("photo")
 }

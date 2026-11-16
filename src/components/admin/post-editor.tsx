@@ -15,6 +15,8 @@ export interface EditorPost {
   isPinned: boolean
   categoryName: string
   tagNames: string
+  /** datetime-local 格式（本地时区）；空字符串表示不指定 */
+  publishedAt: string
 }
 
 const emptyPost: EditorPost = {
@@ -27,13 +29,25 @@ const emptyPost: EditorPost = {
   isPinned: false,
   categoryName: '',
   tagNames: '',
+  publishedAt: '',
+}
+
+/** ISO 时间 → datetime-local 输入值（按浏览器本地时区） */
+function toLocalInput(iso: string): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
 const DRAFT_KEY = 'personlog_draft_new'
 
 export function PostEditor({ post, categories }: { post?: EditorPost; categories: string[] }) {
   const router = useRouter()
-  const [form, setForm] = useState<EditorPost>(post ?? emptyPost)
+  const [form, setForm] = useState<EditorPost>(() =>
+    post ? { ...post, publishedAt: toLocalInput(post.publishedAt) } : emptyPost,
+  )
   const [preview, setPreview] = useState(false)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -119,7 +133,10 @@ export function PostEditor({ post, categories }: { post?: EditorPost; categories
       const res = await fetch(isEditing ? `/api/posts/${form.id}` : '/api/posts', {
         method: isEditing ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          publishedAt: form.publishedAt ? new Date(form.publishedAt).toISOString() : undefined,
+        }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -286,6 +303,20 @@ export function PostEditor({ post, categories }: { post?: EditorPost; categories
             />
           )}
           <p className="text-xs text-stone-400">图片会保存到服务器 data/uploads 目录</p>
+        </div>
+
+        <div className="max-w-xs space-y-1.5">
+          <label className={label} htmlFor="publishedAt">
+            发布时间
+          </label>
+          <input
+            id="publishedAt"
+            type="datetime-local"
+            className={input}
+            value={form.publishedAt}
+            onChange={(e) => set('publishedAt', e.target.value)}
+          />
+          <p className="text-xs text-stone-400">留空则发布时自动记录；未来时间将定时上线。</p>
         </div>
 
         <div className="flex items-center gap-6 border-t border-stone-100 pt-5 dark:border-stone-800">

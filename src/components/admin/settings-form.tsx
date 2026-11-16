@@ -9,6 +9,18 @@ const FIELDS: { key: keyof SiteConfigValues; label: string; placeholder: string;
   { key: 'tagline', label: '副标题', placeholder: '记录与思考' },
   { key: 'description', label: '站点描述（SEO）', placeholder: '个人博客：技术笔记与生活记录。' },
   { key: 'footerText', label: '页脚文案', placeholder: '© 2026 Person Log', hint: '留空的项恢复默认值' },
+  {
+    key: 'icpNumber',
+    label: 'ICP 备案号（可选）',
+    placeholder: '如 京ICP备12345678号-1',
+    hint: '填写后会显示在页脚并链接到工信部备案系统',
+  },
+  {
+    key: 'icpUrl',
+    label: '备案查询链接（可选）',
+    placeholder: 'https://beian.miit.gov.cn/',
+    hint: '留空时使用工信部默认链接',
+  },
   { key: 'githubUrl', label: 'GitHub 主页（可选）', placeholder: 'https://github.com/yourname' },
   { key: 'email', label: '联系邮箱（可选）', placeholder: 'me@example.com' },
   {
@@ -40,6 +52,8 @@ export function SettingsForm({ initial }: { initial: SiteConfigValues }) {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
+  const [mailSending, setMailSending] = useState(false)
+  const [mailResult, setMailResult] = useState<{ ok: boolean; text: string } | null>(null)
 
   async function handleSave() {
     setSaving(true)
@@ -60,6 +74,24 @@ export function SettingsForm({ initial }: { initial: SiteConfigValues }) {
       router.refresh()
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function handleTestMail() {
+    setMailSending(true)
+    setMailResult(null)
+    try {
+      const res = await fetch('/api/settings/test-mail', { method: 'POST' })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setMailResult({ ok: false, text: data.error ?? '发送失败，请检查 SMTP 配置' })
+        return
+      }
+      setMailResult({ ok: true, text: `测试邮件已发送至 ${data.to ?? '博主邮箱'}` })
+    } catch {
+      setMailResult({ ok: false, text: '网络异常，请重试' })
+    } finally {
+      setMailSending(false)
     }
   }
 
@@ -105,6 +137,32 @@ export function SettingsForm({ initial }: { initial: SiteConfigValues }) {
           </button>
           {saved && <span className="text-sm text-green-700 dark:text-green-500">已保存，前台刷新即可生效</span>}
           {error && <span className="text-sm text-red-600">{error}</span>}
+        </div>
+      </div>
+
+      <div className="mt-6 border-t border-stone-100 pt-5 dark:border-stone-800">
+        <p className="text-sm font-medium text-stone-600 dark:text-stone-300">邮件发送测试</p>
+        <p className="mt-1 text-xs text-stone-400">
+          向 MAIL_FROM（未设置时用 SMTP_USER）发一封测试邮件；SMTP 未配置时会提示。
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={handleTestMail}
+            disabled={mailSending}
+            className="rounded-full border border-stone-300 px-5 py-2 text-sm text-stone-700 transition-colors hover:bg-stone-100 disabled:opacity-50 dark:border-stone-700 dark:text-stone-200 dark:hover:bg-stone-800"
+          >
+            {mailSending ? '发送中…' : '发送测试邮件'}
+          </button>
+          {mailResult && (
+            <span
+              className={
+                'text-sm ' + (mailResult.ok ? 'text-green-700 dark:text-green-500' : 'text-red-600')
+              }
+            >
+              {mailResult.text}
+            </span>
+          )}
         </div>
       </div>
     </div>

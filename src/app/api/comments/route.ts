@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { getSessionUser } from '@/lib/session'
 import { createComment, isRateLimited } from '@/lib/comments'
+import { notifyCommentReply, notifyPendingComment } from '@/lib/notifications'
 import { prisma } from '@/lib/db'
 
 export const runtime = 'nodejs'
@@ -70,6 +71,12 @@ export async function POST(req: NextRequest) {
 
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 400 })
+  }
+  if (user && parentId !== null) {
+    after(() => notifyCommentReply(result.id))
+  }
+  if (!user && result.status === 'pending') {
+    after(() => notifyPendingComment(result.id))
   }
   return NextResponse.json({ ok: true, status: result.status, id: result.id })
 }

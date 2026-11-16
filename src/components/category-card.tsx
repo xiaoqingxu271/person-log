@@ -99,8 +99,8 @@ export function CategoryCard({ name, slug, description, count, index, topTags }:
   return (
     <Link
       href={`/categories/${encodeURIComponent(slug)}`}
-      className="glass-panel group animate-fade-up relative flex flex-col overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:border-ice-400/35 hover:shadow-[0_16px_44px_rgba(14,165,233,0.18)]"
-      style={{ animationDelay: `${index * 70}ms`, background: `linear-gradient(150deg, ${meta.tint}, rgba(9,13,32,0.62))` }}
+      className="glass-panel group relative flex flex-col overflow-hidden rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:border-ice-400/35 hover:shadow-[0_16px_44px_rgba(14,165,233,0.18)]"
+      style={{ background: `linear-gradient(150deg, ${meta.tint}, rgba(9,13,32,0.62))` }}
     >
       <div className="flex items-start gap-3.5">
         <span
