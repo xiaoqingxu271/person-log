@@ -97,7 +97,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Validate compose config
-        run: AUTH_SECRET=ci-secret docker compose config > /dev/null
+        run: |
+          AUTH_SECRET=ci-secret \
+          MYSQL_ROOT_PASSWORD=ci-root \
+          MYSQL_PASSWORD=ci-pwd \
+          ADMIN_PASSWORD=ci-admin-password \
+          docker compose config > /dev/null
 
       - uses: docker/setup-buildx-action@v3
 

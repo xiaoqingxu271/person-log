@@ -1,5 +1,9 @@
+import { cache } from 'react'
+import { unstable_cache } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { visiblePostWhere } from '@/lib/post-visibility'
+
+const POSTS_TAG = 'posts'
 
 /** 本地时区的今日日期（YYYY-MM-DD） */
 export function localToday(): string {
@@ -22,8 +26,16 @@ export interface PvSeriesPoint {
   pv: number
 }
 
-/** 最近 N 天的 PV 序列（缺失日期补 0） */
-export async function getDailyPvSeries(days = 14): Promise<PvSeriesPoint[]> {
+/** 最近 N 天的 PV 序列（缺失日期补 0）；首页图表每次渲染都会读，缓存 1 分钟 */
+export const getDailyPvSeries = cache(
+  unstable_cache(
+    async (days = 14): Promise<PvSeriesPoint[]> => readDailyPvSeries(days),
+    ['daily-pv-series'],
+    { tags: ['stats'], revalidate: 60 },
+  ),
+)
+
+async function readDailyPvSeries(days: number): Promise<PvSeriesPoint[]> {
   const points: PvSeriesPoint[] = []
   const now = new Date()
   for (let i = days - 1; i >= 0; i--) {
@@ -42,7 +54,14 @@ export async function getDailyPvSeries(days = 14): Promise<PvSeriesPoint[]> {
 }
 
 /** 前台全站统计：文章/分类/标签/获赞/评论/阅读/写作天数 */
-export async function getBlogStats() {
+export const getBlogStats = cache(
+  unstable_cache(readBlogStats, ['blog-stats'], {
+    tags: [POSTS_TAG, 'comments'],
+    revalidate: 60,
+  }),
+)
+
+async function readBlogStats() {
   const [posts, categories, tags, agg, comments, first] = await Promise.all([
     prisma.post.count({ where: visiblePostWhere() }),
     prisma.category.count(),
@@ -68,6 +87,30 @@ export async function getBlogStats() {
     writingDays,
   }
 }
+
+export interface SiteCounts {
+  posts: number
+  categories: number
+  tags: number
+  views: number
+}
+
+/** 首页 Hero 数字：4 个聚合查询缓存后逐请求复用 */
+export const getSiteCounts = cache(
+  unstable_cache(
+    async (): Promise<SiteCounts> => {
+      const [posts, categories, tags, agg] = await Promise.all([
+        prisma.post.count({ where: visiblePostWhere() }),
+        prisma.category.count(),
+        prisma.tag.count(),
+        prisma.post.aggregate({ where: visiblePostWhere(), _sum: { views: true } }),
+      ])
+      return { posts, categories, tags, views: agg._sum.views ?? 0 }
+    },
+    ['site-counts'],
+    { tags: [POSTS_TAG], revalidate: 60 },
+  ),
+)
 
 /** 数据看板聚合查询 */
 export async function getDashboardStats() {

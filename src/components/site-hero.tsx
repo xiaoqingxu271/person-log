@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { formatCount } from '@/lib/format'
-import { CloudSnowIcon, EyeIcon, FileTextIcon, FolderIcon, TagIcon } from '@/components/icons'
+import { EyeIcon, FileTextIcon, FolderIcon, TagIcon } from '@/components/icons'
+import { LocalWeatherChip } from '@/components/local-weather'
 
 interface SiteHeroProps {
   tagline: string
@@ -21,6 +22,7 @@ export function SiteHero({ tagline, description, bannerUrl, stats }: SiteHeroPro
 
   return (
     <section className="glass-panel animate-fade-up relative overflow-hidden rounded-3xl">
+      {/* 全屏背景图已由 AuroraBackground 预加载，这里不再重复抢占首屏带宽 */}
       <Image
         src={image}
         alt=""
@@ -81,16 +83,7 @@ export function SiteHero({ tagline, description, bannerUrl, stats }: SiteHeroPro
             Unknown
           </p>
 
-          <div className="glass-chip absolute right-0 top-1/2 flex w-[104px] -translate-y-1/2 flex-col items-center rounded-2xl px-3 py-3.5 text-center">
-            <span className="text-[9px] font-semibold uppercase tracking-[0.25em] text-slate-300">
-              Aurora
-            </span>
-            <span className="mt-1.5 flex items-center gap-1.5">
-              <CloudSnowIcon className="h-6 w-6 text-ice-300" />
-              <span className="text-xl font-bold text-white">23°C</span>
-            </span>
-            <span className="mt-1 text-[10px] text-slate-400">Fairbanks</span>
-          </div>
+          <LocalWeatherChip />
         </div>
       </div>
     </section>

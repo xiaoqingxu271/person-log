@@ -12,14 +12,14 @@ services:
     container_name: person-log-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-personlog_root}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?请在 .env 设置 MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-personlog}
       MYSQL_USER: ${MYSQL_USER:-personlog}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-personlog_pwd}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?请在 .env 设置 MYSQL_PASSWORD}
       TZ: Asia/Shanghai
     ports:
-      # 映射到宿主机 3307，避开本机已安装的 MySQL(3306)；容器内仍是 3306
-      - "${MYSQL_HOST_PORT:-3307}:3306"
+      # 只绑本机回环，避免数据库直接暴露公网；本机调试可用 127.0.0.1:3307 连接
+      - "127.0.0.1:${MYSQL_HOST_PORT:-3307}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       # 首次启动（数据卷为空）时自动执行建表脚本
@@ -47,13 +47,13 @@ services:
       NODE_ENV: production
       TZ: Asia/Shanghai
       # 容器网络内通过服务名 mysql 访问（不能用 localhost），由 compose 自动拼接
-      DATABASE_URL: mysql://${MYSQL_USER:-personlog}:${MYSQL_PASSWORD:-personlog_pwd}@mysql:3306/${MYSQL_DATABASE:-personlog}
+      DATABASE_URL: mysql://${MYSQL_USER:-personlog}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE:-personlog}
       # 会话签名密钥，必填：openssl rand -hex 32
       AUTH_SECRET: ${AUTH_SECRET:?请在 .env 中设置 AUTH_SECRET（openssl rand -hex 32）}
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
       # 首次启动且用户表为空时创建管理员（之后改这里不会覆盖已有账号）
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123456}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?请在 .env 设置 ADMIN_PASSWORD（建议 12 位以上随机密码）}
       # 可选：未配置时邮件通知自动跳过
       SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-587}
@@ -62,7 +62,8 @@ services:
       SMTP_PASS: ${SMTP_PASS:-}
       MAIL_FROM: ${MAIL_FROM:-}
     ports:
-      - "${APP_HOST_PORT:-3000}:3000"
+      # 只绑本机回环，由 Nginx/Caddy 反代对外；局域网调试可设 APP_BIND_IP=0.0.0.0
+      - "${APP_BIND_IP:-127.0.0.1}:${APP_HOST_PORT:-3000}:3000"
     volumes:
       # 上传的图片/音频持久化，重建镜像不丢
       - uploads_data:/app/data/uploads

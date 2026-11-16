@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Metadata } from 'next'
+import { after } from 'next/server'
 import { notFound } from 'next/navigation'
-import { prisma } from '@/lib/db'
 import { getPostBySlug, incrementPostViews, listRelatedPosts, getAdjacentPosts } from '@/lib/posts'
 import { listCommentsForPost } from '@/lib/comments'
 import { getSessionUser } from '@/lib/session'
-import { getSiteConfig } from '@/lib/site-config'
+import { getSiteConfig, getOwnerProfile } from '@/lib/site-config'
 import { getBlogStats } from '@/lib/stats'
 import { isPostPublic } from '@/lib/post-visibility'
 import { extractToc } from '@/lib/toc'
@@ -60,9 +60,9 @@ export default async function PostPage({ params }: Props) {
   const isPublic = post ? isPostPublic(post) : false
   if (!post || (!isPublic && !user)) notFound()
 
-  // F-22 浏览量：详情页每次访问 +1（草稿/定时预览不计）
+  // F-22 浏览量：详情页每次访问 +1（草稿/定时预览不计）；响应发出后再写库，不阻塞首屏
   if (isPublic) {
-    await incrementPostViews(post.id)
+    after(() => incrementPostViews(post.id))
   }
   const [comments, toc, cfg, related, adjacent, stats, owner] = await Promise.all([
     listCommentsForPost(post.id, Boolean(user)),
@@ -72,9 +72,9 @@ export default async function PostPage({ params }: Props) {
       post.id,
       post.tags.map((t) => t.tag.slug),
     ),
-    getAdjacentPosts(post.id, post.publishedAt),
+    getAdjacentPosts(post.id, post.publishedAt?.toISOString() ?? null),
     getBlogStats(),
-    prisma.user.findFirst({ select: { displayName: true, avatarUrl: true } }).catch(() => null),
+    getOwnerProfile(),
   ])
 
   // F-41 结构化数据：BlogPosting JSON-LD

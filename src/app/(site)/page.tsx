@@ -1,9 +1,7 @@
 import Link from 'next/link'
-import { prisma } from '@/lib/db'
 import { getSiteConfig } from '@/lib/site-config'
 import { listPublishedPosts } from '@/lib/posts'
-import { getDailyPvSeries } from '@/lib/stats'
-import { visiblePostWhere } from '@/lib/post-visibility'
+import { getDailyPvSeries, getSiteCounts } from '@/lib/stats'
 import { PostCard } from '@/components/post-card'
 import { Pagination } from '@/components/pagination'
 import { SiteHero } from '@/components/site-hero'
@@ -21,23 +19,12 @@ export default async function HomePage({ searchParams }: Props) {
   const { page } = await searchParams
   const current = Math.max(1, Number(page) || 1)
 
-  const [cfg, { posts, totalPages }] = await Promise.all([
+  const [cfg, { posts, totalPages }, stats, series] = await Promise.all([
     getSiteConfig(),
     listPublishedPosts(current),
-  ])
-  const [postCount, categoryCount, tagCount, viewsAgg, series] = await Promise.all([
-    prisma.post.count({ where: visiblePostWhere() }),
-    prisma.category.count(),
-    prisma.tag.count(),
-    prisma.post.aggregate({ where: visiblePostWhere(), _sum: { views: true } }),
+    getSiteCounts(),
     getDailyPvSeries(365),
   ])
-  const stats = {
-    posts: postCount,
-    categories: categoryCount,
-    tags: tagCount,
-    views: viewsAgg._sum.views ?? 0,
-  }
 
   return (
     <div className="mx-auto w-full max-w-[1280px] px-3 pt-4 sm:px-4">

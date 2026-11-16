@@ -1,3 +1,4 @@
+import { isValidElement } from 'react'
 import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -25,7 +26,21 @@ export function MarkdownView({ content }: { content: string }) {
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeSlug, rehypeHighlight, [rehypeSanitize, sanitizeSchema]]}
         components={{
-          pre: ({ node: _node, ...rest }) => <CodeBlock {...rest} />,
+          pre: ({ node: _node, children, ...rest }) => {
+            // 语言在服务端从 <code class="language-*"> 提取后以字符串传入，
+            // 避免客户端组件在 hydration 时自行解析 children 导致文本不一致
+            let lang = 'code'
+            if (isValidElement(children)) {
+              const cls = (children.props as { className?: string }).className ?? ''
+              const match = /language-([\w-]+)/.exec(cls)
+              if (match) lang = match[1]
+            }
+            return (
+              <CodeBlock lang={lang} {...rest}>
+                {children}
+              </CodeBlock>
+            )
+          },
           // 正文图片走 next/image 优化（AVIF/WebP + 响应式尺寸 + 懒加载）；
           // 忽略 markdown 里手写的 width/height，统一按容器宽度响应式渲染
           img: ({ node: _node, alt = '', src, width: _w, height: _h, ...rest }) => (

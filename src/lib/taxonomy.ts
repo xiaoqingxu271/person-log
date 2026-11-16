@@ -1,5 +1,11 @@
 import { NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { prisma } from '@/lib/db'
+
+/** 分类/标签变动会影响文章卡片、归档和统计，统一失效前台内容缓存 */
+function touchPosts() {
+  revalidateTag('posts', 'max')
+}
 
 export class TaxonomyError extends Error {
   status: number
@@ -63,16 +69,21 @@ async function assertCategoryUnique(name: string, slug: string, excludeId?: numb
 
 export async function createCategory(input: TaxonomyInput) {
   await assertCategoryUnique(input.name, input.slug)
-  return prisma.category.create({ data: input })
+  const created = await prisma.category.create({ data: input })
+  touchPosts()
+  return created
 }
 
 export async function updateCategory(id: number, input: TaxonomyInput) {
   await assertCategoryUnique(input.name, input.slug, id)
-  return prisma.category.update({ where: { id }, data: input })
+  const updated = await prisma.category.update({ where: { id }, data: input })
+  touchPosts()
+  return updated
 }
 
 export async function deleteCategory(id: number) {
   await prisma.category.delete({ where: { id } })
+  touchPosts()
 }
 
 /** 合并分类：文章迁移到目标分类后删除来源分类 */
@@ -88,6 +99,7 @@ export async function mergeCategory(sourceId: number, targetId: number) {
     prisma.post.updateMany({ where: { categoryId: sourceId }, data: { categoryId: targetId } }),
     prisma.category.delete({ where: { id: sourceId } }),
   ])
+  touchPosts()
 }
 
 async function assertTagUnique(name: string, slug: string, excludeId?: number) {
@@ -105,16 +117,24 @@ async function assertTagUnique(name: string, slug: string, excludeId?: number) {
 
 export async function createTag(input: TaxonomyInput) {
   await assertTagUnique(input.name, input.slug)
-  return prisma.tag.create({ data: { name: input.name, slug: input.slug } })
+  const created = await prisma.tag.create({ data: { name: input.name, slug: input.slug } })
+  touchPosts()
+  return created
 }
 
 export async function updateTag(id: number, input: TaxonomyInput) {
   await assertTagUnique(input.name, input.slug, id)
-  return prisma.tag.update({ where: { id }, data: { name: input.name, slug: input.slug } })
+  const updated = await prisma.tag.update({
+    where: { id },
+    data: { name: input.name, slug: input.slug },
+  })
+  touchPosts()
+  return updated
 }
 
 export async function deleteTag(id: number) {
   await prisma.tag.delete({ where: { id } })
+  touchPosts()
 }
 
 /** 合并标签：文章关联迁移到目标标签（去重）后删除来源标签 */
@@ -134,4 +154,5 @@ export async function mergeTag(sourceId: number, targetId: number) {
     }),
     prisma.tag.delete({ where: { id: sourceId } }),
   ])
+  touchPosts()
 }

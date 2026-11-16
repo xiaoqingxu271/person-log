@@ -1,22 +1,15 @@
 'use client'
 
-import { isValidElement, useRef, useState } from 'react'
-
-function languageOf(children: React.ReactNode): string {
-  if (isValidElement(children)) {
-    const cls = (children.props as { className?: string }).className ?? ''
-    const match = /language-([\w-]+)/.exec(cls)
-    if (match) return match[1]
-  }
-  return 'code'
-}
+import { useRef, useState } from 'react'
 
 /** 代码块：mac 圆点 + 语言标签头部 + 复制按钮（极光暗色） */
-export function CodeBlock(props: React.HTMLAttributes<HTMLPreElement>) {
-  const { children, ...rest } = props
+export function CodeBlock({
+  lang = 'code',
+  children,
+  ...rest
+}: React.HTMLAttributes<HTMLPreElement> & { lang?: string }) {
   const ref = useRef<HTMLPreElement>(null)
   const [state, setState] = useState<'idle' | 'done' | 'fail'>('idle')
-  const lang = languageOf(children)
 
   async function handleCopy() {
     const text = ref.current?.innerText ?? ''

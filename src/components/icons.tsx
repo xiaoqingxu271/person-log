@@ -251,15 +251,6 @@ export function XIcon({ className }: IconProps) {
   )
 }
 
-export function CloudSnowIcon({ className }: IconProps) {
-  return (
-    <svg {...base(className)}>
-      <path d="M20 15.5A4.5 4.5 0 0 0 17.5 7h-1.1A7 7 0 1 0 5 15.2" />
-      <path d="M8 19h.01M12 21h.01M16 19h.01M8 15h.01M12 17h.01M16 15h.01" />
-    </svg>
-  )
-}
-
 export function UsersIcon({ className }: IconProps) {
   return (
     <svg {...base(className)}>

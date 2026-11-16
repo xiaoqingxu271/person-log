@@ -151,6 +151,7 @@ CREATE TABLE `music_item` (
     `title` VARCHAR(200) NOT NULL,
     `artist` VARCHAR(200) NOT NULL,
     `cover_url` VARCHAR(500) NOT NULL DEFAULT '',
+    `audio_url` VARCHAR(500) NOT NULL DEFAULT '',
     `genre` VARCHAR(50) NOT NULL DEFAULT '',
     `rating` INTEGER NOT NULL DEFAULT 0,
     `review` VARCHAR(1000) NOT NULL DEFAULT '',

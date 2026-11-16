@@ -43,7 +43,7 @@ Next.js 16（App Router）· React 19 · TypeScript · Tailwind CSS 4 · Prisma 
 
 ## 🚀 快速开始
 
-前置：Node 18+、MySQL 8（本机安装或 Docker 均可）。
+前置：Node 20.9+、MySQL 8（本机安装或 Docker 均可）。
 
 ```bash
 git clone https://github.com/xiaoqingxu271/person-log.git
@@ -78,12 +78,13 @@ GRANT ALL PRIVILEGES ON personlog.* TO 'personlog'@'localhost';
 | `DATABASE_URL` | MySQL 连接串（本机 3306 或 Docker 映射的 3307） |
 | `AUTH_SECRET` | 会话签名密钥，`openssl rand -hex 32` 生成 |
 | `NEXT_PUBLIC_SITE_URL` | 站点对外地址（影响 RSS/sitemap/JSON-LD 中的链接）；设为 `https://` 域名后会话 Cookie 自动启用 Secure |
-| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | 初始管理员账号（仅 seed 时使用） |
+| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | 初始管理员账号（seed 与容器首次启动使用；Docker 部署必填） |
 | `SMTP_HOST` / `SMTP_PORT` | SMTP 服务器与端口（默认 587；465 自动启用隐式 TLS） |
 | `SMTP_USER` / `SMTP_PASS` | SMTP 登录账号密码（无认证的内网中继可留空） |
 | `SMTP_SECURE` | 是否隐式 TLS，留空按端口判断（465 为是） |
 | `MAIL_FROM` | 发件人地址，留空回退为 `SMTP_USER`；同时作为待审评论通知的收件地址 |
-| `MYSQL_*` | 仅 Docker 部署时使用（见 docker-compose.yml） |
+| `MYSQL_ROOT_PASSWORD` / `MYSQL_PASSWORD` | Docker 部署必填的数据库密码；其余 `MYSQL_*` 见 docker-compose.yml |
+| `APP_BIND_IP` / `APP_HOST_PORT` | Docker 应用监听地址与端口（默认仅绑定 127.0.0.1:3000） |
 
 ## 🧪 测试
 
@@ -103,11 +104,13 @@ E2E_BASE=http://localhost:3001 npm run test:e2e
 
 ```bash
 cp .env.example .env
-# 必填：openssl rand -hex 32 并写入 .env 的 AUTH_SECRET
+# 必填：AUTH_SECRET（openssl rand -hex 32）、MYSQL_ROOT_PASSWORD、MYSQL_PASSWORD、ADMIN_PASSWORD
 docker compose up -d --build
 ```
 
 - 首次启动自动建表，并在用户表为空时按 `ADMIN_USERNAME` / `ADMIN_PASSWORD` 创建管理员
+- 想用 `http://服务器IP:3000` 直接预览时，把 `.env` 的 `APP_BIND_IP` 改为 `0.0.0.0`；正式上线保持 `127.0.0.1` 并走下面的反向代理
+- MySQL 与应用默认只绑定 `127.0.0.1`，不会直接暴露公网
 - `NEXT_PUBLIC_SITE_URL` 在构建期内联，改域名需重新 `docker compose up -d --build`
 - 上传的图片与音频保存在 `uploads_data` 命名卷，重建镜像不丢；备份数据库之外请一并备份该卷
 - `NEXT_PUBLIC_SITE_URL` / `AUTH_SECRET` / SMTP 变量均在 `.env` 中配置，compose 会自动注入
@@ -140,7 +143,7 @@ gunzip -c backups/person-log-YYYYmmdd-HHMMSS.sql.gz | docker compose exec -T mys
 ## 🚢 上线检查清单
 
 1. 域名购买 + 实名认证 + ICP 备案（部署在国内服务器时必办，周期约 1~3 周）
-2. 服务器 `cp .env.example .env`：修改数据库密码、`AUTH_SECRET`，并把 `NEXT_PUBLIC_SITE_URL` 设为 `https://` 正式域名（会话 Cookie 会自动启用 Secure）
+2. 服务器 `cp .env.example .env`：设置数据库强密码（`MYSQL_ROOT_PASSWORD` / `MYSQL_PASSWORD`）、`ADMIN_PASSWORD`、`AUTH_SECRET`，并把 `NEXT_PUBLIC_SITE_URL` 设为 `https://` 正式域名（会话 Cookie 会自动启用 Secure）
 3. 签发 HTTPS 证书并配置反向代理（可直接套用 `deploy/` 下的 Nginx/Caddy 样例）；后台「账户安全」中修改默认管理员密码
 4. 后台「站点设置」填写 ICP 备案号后提交 `sitemap.xml` 到搜索引擎
 5. 配置每日备份定时任务（见「数据备份与恢复」）并做一次恢复演练

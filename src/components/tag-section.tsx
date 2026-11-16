@@ -61,6 +61,7 @@ export function TagSection({
                 publishedAt={post.publishedAt}
                 tags={post.tags.map((t) => ({ name: t.tag.name, slug: t.tag.slug }))}
                 views={post.views}
+                preload={index === 0}
               />
             </Reveal>
           ))}

@@ -1,5 +1,4 @@
-import { prisma } from '@/lib/db'
-import { getSiteConfig } from '@/lib/site-config'
+import { getSiteConfig, getOwnerProfile } from '@/lib/site-config'
 import { hasRecentMoment } from '@/lib/moments'
 import { AuroraBackground } from '@/components/aurora-background'
 import { SiteHeader } from '@/components/site-header'
@@ -8,10 +7,7 @@ import { AudioRoot } from '@/components/audio/audio-root'
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const cfg = await getSiteConfig()
-  const [owner, recentMoment] = await Promise.all([
-    prisma.user.findFirst({ select: { displayName: true, avatarUrl: true } }).catch(() => null),
-    hasRecentMoment(),
-  ])
+  const [owner, recentMoment] = await Promise.all([getOwnerProfile(), hasRecentMoment()])
 
   // 从 GitHub 主页链接提取用户名作为创作者署名，如 https://github.com/xxx → xxx
   let creator: string | null = null

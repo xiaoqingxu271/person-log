@@ -1,16 +1,15 @@
 import { readFile } from 'fs/promises'
 import path from 'path'
 import Image from 'next/image'
-import { prisma } from '@/lib/db'
 import { listMoments } from '@/lib/moments'
 import { listTagsWithCount } from '@/lib/posts'
-import { getSiteConfig } from '@/lib/site-config'
+import { getSiteConfig, getOwnerProfile } from '@/lib/site-config'
 import { getSessionUser } from '@/lib/session'
 import { getBlogStats } from '@/lib/stats'
 import { formatCount } from '@/lib/format'
 import { MomentCard } from '@/components/moment-card'
 import { MomentComposer } from '@/components/moment-composer'
-import { WeatherCard } from '@/components/weather-card'
+import { LocalWeatherCard } from '@/components/local-weather'
 import { MountainLine } from '@/components/mountain-line'
 import { StarConstellation } from '@/components/star-constellation'
 import { SparkleIcon, TagIcon } from '@/components/icons'
@@ -38,7 +37,7 @@ export default async function MomentsPage() {
     listMoments(),
     getSiteConfig(),
     getSessionUser(),
-    prisma.user.findFirst({ select: { displayName: true, avatarUrl: true } }).catch(() => null),
+    getOwnerProfile(),
     getBlogStats(),
     listTagsWithCount(),
   ])
@@ -59,6 +58,7 @@ export default async function MomentsPage() {
               alt={`${ownerName}的头像`}
               width={112}
               height={112}
+              preload
               className="relative h-28 w-28 rounded-full border-2 border-night-900 object-cover"
             />
             <SparkleIcon className="absolute -right-1 top-3 h-3 w-3 text-flare-300" />
@@ -143,7 +143,7 @@ export default async function MomentsPage() {
         {/* 右：天气 + 海报 + 星座 */}
         <aside className="hidden space-y-6 self-start xl:block">
           <div className="animate-fade-up" style={{ animationDelay: '100ms' }}>
-            <WeatherCard />
+            <LocalWeatherCard />
           </div>
           <div className="glass-panel animate-fade-up overflow-hidden rounded-2xl" style={{ animationDelay: '160ms' }}>
             <div className="relative h-44">

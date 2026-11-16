@@ -15,7 +15,16 @@ export interface PostRowProps {
 }
 
 /** 横向文章玻璃卡：左封面 + 标题摘要 + 日期/标签/阅读 + 右侧雪山装饰 */
-export function PostRowCard({ title, slug, summary, coverUrl, publishedAt, tags, views }: PostRowProps) {
+export function PostRowCard({
+  title,
+  slug,
+  summary,
+  coverUrl,
+  publishedAt,
+  tags,
+  views,
+  preload = false,
+}: PostRowProps & { preload?: boolean }) {
   return (
     <article className="glass-panel group relative overflow-hidden rounded-2xl p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-ice-400/30 hover:shadow-[0_14px_40px_rgba(14,165,233,0.16)]">
       <div className="flex gap-4">
@@ -28,6 +37,7 @@ export function PostRowCard({ title, slug, summary, coverUrl, publishedAt, tags,
             src={coverUrl || '/images/aurora-lake.jpg'}
             alt={title}
             fill
+            preload={preload}
             sizes="(max-width: 640px) 144px, 176px"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
