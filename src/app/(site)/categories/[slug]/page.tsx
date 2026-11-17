@@ -20,7 +20,8 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const category = await getCategoryBySlug(decodeURIComponent(slug))
-  return { title: category ? `分类：${category.name}` : '分类不存在' }
+  if (!category) notFound()
+  return { title: `分类：${category.name}` }
 }
 
 export default async function CategoryPage({ params, searchParams }: Props) {

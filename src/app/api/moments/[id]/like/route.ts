@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { revalidateTag } from 'next/cache'
 import { prisma } from '@/lib/db'
 
 export const runtime = 'nodejs'
@@ -22,7 +21,6 @@ export async function POST(_req: NextRequest, ctx: Ctx) {
       data: { likes: { increment: 1 } },
       select: { likes: true },
     })
-    revalidateTag('moments', 'max')
     return NextResponse.json({ likes: moment.likes })
   } catch {
     return NextResponse.json({ error: '说说不存在' }, { status: 404 })

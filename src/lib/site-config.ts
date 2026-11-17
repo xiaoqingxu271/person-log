@@ -1,9 +1,6 @@
 import { cache } from 'react'
-import { unstable_cache, revalidateTag } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { SITE } from '@/lib/site'
-
-const SITE_CONFIG_TAG = 'site-config'
 
 export interface SiteConfigValues {
   siteName: string
@@ -65,29 +62,20 @@ async function readSiteConfig(): Promise<SiteConfigValues> {
   }
 }
 
-/** 站点设置被布局、metadata 和页面同时读取；跨请求缓存并在保存后失效 */
-export const getSiteConfig = cache(
-  unstable_cache(readSiteConfig, ['site-config'], {
-    tags: [SITE_CONFIG_TAG],
-    revalidate: 300,
-  }),
-)
+/** 站点设置被布局、metadata 和页面同时读取；按请求去重 */
+export const getSiteConfig = cache(readSiteConfig)
 
 export interface OwnerProfile {
   displayName: string
   avatarUrl: string
 }
 
-/** 博主昵称/头像：每个前台页面都会用到，缓存避免逐请求查用户表 */
+/** 博主昵称/头像：同一请求内多处读取时去重 */
 export const getOwnerProfile = cache(
-  unstable_cache(
-    async (): Promise<OwnerProfile | null> =>
-      prisma.user
-        .findFirst({ select: { displayName: true, avatarUrl: true } })
-        .catch(() => null),
-    ['owner-profile'],
-    { tags: [SITE_CONFIG_TAG], revalidate: 300 },
-  ),
+  async (): Promise<OwnerProfile | null> =>
+    prisma.user
+      .findFirst({ select: { displayName: true, avatarUrl: true } })
+      .catch(() => null),
 )
 
 export async function saveSiteConfig(values: Partial<Record<keyof SiteConfigValues, string>>) {
@@ -101,5 +89,4 @@ export async function saveSiteConfig(values: Partial<Record<keyof SiteConfigValu
       }),
     )
   if (ops.length > 0) await prisma.$transaction(ops)
-  revalidateTag(SITE_CONFIG_TAG, 'max')
 }

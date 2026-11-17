@@ -1,11 +1,32 @@
 // person-log 全量冒烟测试：M1 发布闭环 + M2 体验 + M3 互动 + M5 演进 + M6 音乐库/相册 + M7 站内音频
 // 运行：node .smoke.mjs（服务器需在 localhost:3000 运行；可用 SMOKE_BASE 指定其他地址）
-import { readFileSync } from 'fs'
 const base = process.env.SMOKE_BASE ?? 'http://localhost:3000'
 
 // 1x1 透明 PNG
 const PNG_B64 =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+
+// 0.1 秒 8kHz 单声道 16bit WAV（测试音频上传，不依赖仓库内演示音频）
+function makeWav(seconds = 0.1, sampleRate = 8000) {
+  const samples = Math.floor(seconds * sampleRate)
+  const buf = Buffer.alloc(44 + samples * 2)
+  buf.write('RIFF', 0)
+  buf.writeUInt32LE(36 + samples * 2, 4)
+  buf.write('WAVEfmt ', 8)
+  buf.writeUInt32LE(16, 16)
+  buf.writeUInt16LE(1, 20)
+  buf.writeUInt16LE(1, 22)
+  buf.writeUInt32LE(sampleRate, 24)
+  buf.writeUInt32LE(sampleRate * 2, 28)
+  buf.writeUInt16LE(2, 32)
+  buf.writeUInt16LE(16, 34)
+  buf.write('data', 36)
+  buf.writeUInt32LE(samples * 2, 40)
+  for (let i = 0; i < samples; i++) {
+    buf.writeInt16LE(Math.round(12000 * Math.sin((2 * Math.PI * 440 * i) / sampleRate)), 44 + i * 2)
+  }
+  return buf
+}
 
 let pass = 0
 let fail = 0
@@ -353,10 +374,7 @@ async function main() {
   check('M6 后台相册管理页', r.status === 200 && (await r.text()).includes('相册管理'))
 
   // ================= M7：站内音频播放 =================
-  r = await fetch(`${base}/audio/orbit.wav`)
-  check('M7 演示音频可访问', r.status === 200 && (r.headers.get('content-type') ?? '').includes('audio'))
-
-  const wavBytes = readFileSync('public/audio/orbit.wav')
+  const wavBytes = makeWav()
   const audioForm = new FormData()
   audioForm.append('file', new Blob([wavBytes], { type: 'audio/wav' }), 'smoke.wav')
   const audioUp = await fetch(`${base}/api/uploads/audio`, { method: 'POST', headers: { cookie }, body: audioForm })

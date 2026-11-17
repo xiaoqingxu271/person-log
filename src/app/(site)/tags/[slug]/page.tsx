@@ -15,7 +15,8 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const tag = await getTagBySlug(decodeURIComponent(slug))
-  return { title: tag ? `标签：${tag.name}` : '标签不存在' }
+  if (!tag) notFound()
+  return { title: `标签：${tag.name}` }
 }
 
 export default async function TagPage({ params, searchParams }: Props) {

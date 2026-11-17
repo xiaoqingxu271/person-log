@@ -1,6 +1,5 @@
 import { createHash } from 'crypto'
 import { cache } from 'react'
-import { unstable_cache, revalidateTag } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { getSiteConfig } from '@/lib/site-config'
 import { isPostPublic } from '@/lib/post-visibility'
@@ -120,7 +119,6 @@ export async function createComment(
       isOwner,
     },
   })
-  if (status === 'approved') revalidateTag('comments', 'max')
   return { ok: true, status, id: created.id }
 }
 
@@ -139,12 +137,7 @@ export interface CommentView {
 }
 
 /** 文章评论树（一级评论 + 楼中楼回复）；includeAll 供登录博主查看待审/已隐藏 */
-export const listCommentsForPost = cache(
-  unstable_cache(readCommentsForPost, ['comments-for-post'], {
-    tags: ['comments', 'posts'],
-    revalidate: 60,
-  }),
-)
+export const listCommentsForPost = cache(readCommentsForPost)
 
 async function readCommentsForPost(postId: number, includeAll: boolean): Promise<CommentView[]> {
   const rows = await prisma.comment.findMany({
@@ -192,14 +185,10 @@ export async function adminListComments() {
 
 export async function setCommentStatus(id: number, status: 'approved' | 'hidden') {
   await prisma.comment.update({ where: { id }, data: { status } })
-  revalidateTag('comments', 'max')
-  revalidateTag('posts', 'max')
 }
 
 export async function deleteComment(id: number) {
   await prisma.comment.delete({ where: { id } })
-  revalidateTag('comments', 'max')
-  revalidateTag('posts', 'max')
 }
 
 export async function countPendingComments(): Promise<number> {

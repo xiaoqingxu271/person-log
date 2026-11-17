@@ -22,18 +22,22 @@ async function main() {
     create: { key: 'github_url', value: 'https://github.com/xiaoqingxu271?tab=repositories' },
   })
 
-  await prisma.moment.create({
-    data: { content: '博客正式上线啦，之后的学习笔记和生活记录都会发布在这里 🎉' },
-  })
+  const welcomeMoment = '博客正式上线啦，之后的学习笔记和生活记录都会发布在这里 🎉'
+  if (!(await prisma.moment.findFirst({ where: { content: welcomeMoment } }))) {
+    await prisma.moment.create({ data: { content: welcomeMoment } })
+  }
   console.log('欢迎说说就绪：/moments')
 
-  await prisma.friendLink.create({
-    data: {
-      name: 'xiaoqingxu271',
-      url: 'https://github.com/xiaoqingxu271',
-      description: '我的 GitHub 主页',
-    },
-  })
+  const githubUrl = 'https://github.com/xiaoqingxu271'
+  if (!(await prisma.friendLink.findFirst({ where: { url: githubUrl } }))) {
+    await prisma.friendLink.create({
+      data: {
+        name: 'xiaoqingxu271',
+        url: githubUrl,
+        description: '我的 GitHub 主页',
+      },
+    })
+  }
   console.log('默认友链就绪：/friends')
 
   const category = await prisma.category.upsert({

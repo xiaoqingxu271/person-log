@@ -33,8 +33,10 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const post = await getPostBySlug(decodeURIComponent(slug))
-  if (!post || !isPostPublic(post)) return { title: '文章不存在' }
+  const decoded = decodeURIComponent(slug)
+  const [post, user] = await Promise.all([getPostBySlug(decoded), getSessionUser()])
+  // 在 metadata 阶段抛 404，流式响应才会带上 404 状态码（否则只是 noindex 的软 404）
+  if (!post || (!isPostPublic(post) && !user)) notFound()
   const image = post.coverUrl || '/images/og-default.jpg'
   return {
     title: post.title,
